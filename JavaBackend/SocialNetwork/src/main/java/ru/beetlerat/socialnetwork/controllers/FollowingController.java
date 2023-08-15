@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.beetlerat.socialnetwork.dto.user.authorized.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.user.authorized.ShortUserInfoResponse;
 import ru.beetlerat.socialnetwork.services.users.UserFollowService;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.NoLoginUserException;
@@ -33,12 +34,12 @@ public class FollowingController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<ShortUserInfoResponse> handleNoLoginUserException(NoLoginUserException exception) {
-        return ResponseEntity.ok(ShortUserInfoResponse.NotAuthorized());
+    private ResponseEntity<ResponseToFront> handleNoLoginUserException(NoLoginUserException exception) {
+        return ResponseEntity.ok(ResponseToFront.NotAuthorized());
     }
 
     @ExceptionHandler
-    private ResponseEntity<ShortUserInfoResponse> handleNotFoundException(UserNotFoundException exception) {
-        return ResponseEntity.ok(ShortUserInfoResponse.NotFound());
+    private ResponseEntity<ResponseToFront> handleNotFoundException(UserNotFoundException exception) {
+        return ResponseEntity.ok(ResponseToFront.NotFound());
     }
 }

@@ -3,17 +3,11 @@ package ru.beetlerat.socialnetwork.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import ru.beetlerat.socialnetwork.dto.user.authorized.*;
 import ru.beetlerat.socialnetwork.models.User;
-import ru.beetlerat.socialnetwork.security.JWT.JwtUtils;
-import ru.beetlerat.socialnetwork.security.types.SecurityUserDetails;
 import ru.beetlerat.socialnetwork.services.users.AuthUserService;
 import ru.beetlerat.socialnetwork.services.users.FindUserService;
-import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenNotFoundException;
-import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenRefreshedException;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.NoLoginUserException;
 
 @RestController
@@ -22,45 +16,31 @@ import ru.beetlerat.socialnetwork.utill.exceptions.user.NoLoginUserException;
 public class AuthController {
     private final AuthUserService authService;
     private final FindUserService findUserService;
-    private final JwtUtils jwtUtils;
 
 
     @Autowired
-    public AuthController(AuthUserService authService, FindUserService findUserService, JwtUtils jwtUtils) {
+    public AuthController(AuthUserService authService, FindUserService findUserService) {
         this.authService = authService;
         this.findUserService = findUserService;
-        this.jwtUtils = jwtUtils;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<? extends ResponseToFront> loginUser(@RequestBody AuthorizationUserInfoDTO authRequest) {
+    @GetMapping("/me")
+    public ResponseEntity<ResponseToFront> getCurrentLoginUser() {
+        User currentLoginUser;
+
         try {
-            authService.setAuthentication(
-                    new UsernamePasswordAuthenticationToken(
-                            authRequest.getUsername(),
-                            authRequest.getPassword()
-                    )
-            );
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.ok(ResponseToFront.BadCredentials());
+            currentLoginUser = authService.getCurrentLoginUser();
+        } catch (NoLoginUserException e) {
+            return ResponseEntity.ok(ResponseToFront.NotAuthorized());
         }
 
-        User user = findUserService.getByUsername(authRequest.getUsername());
-
-        SecurityUserDetails securityUserDetails = new SecurityUserDetails(user.getSecuritySettings());
-
-        String jwtAccess = jwtUtils.generateAccessToken(securityUserDetails);
-        String jwtRefresh = "";
-
-
         return ResponseEntity.ok(
-                ShortUserInfoResponse.FromUserInfoAccessAndRefreshTokens(
-                        ShortUserInfo.FromUser(user),
-                        jwtAccess, jwtRefresh
+                ShortUserInfoResponse.FromAuthorizedUser(
+                        ShortUserInfo.FromUser(currentLoginUser)
                 )
         );
-    }
 
+    }
 
     @DeleteMapping("/login")
     public ResponseEntity logoutUser() {
@@ -69,17 +49,7 @@ public class AuthController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<ShortUserInfoResponse> handleNoLoginUserException(NoLoginUserException exception) {
-        return ResponseEntity.ok(ShortUserInfoResponse.NotFound());
-    }
-
-    @ExceptionHandler
-    private void handleTokenRefreshedException(TokenRefreshedException exception) {
-        System.out.println(exception);
-    }
-
-    @ExceptionHandler
-    private void handleTokenNotFoundException(TokenNotFoundException exception) {
-        System.out.println(exception);
+    private ResponseEntity<ResponseToFront> handleNoLoginUserException(NoLoginUserException exception) {
+        return ResponseEntity.ok(ResponseToFront.NotFound());
     }
 }

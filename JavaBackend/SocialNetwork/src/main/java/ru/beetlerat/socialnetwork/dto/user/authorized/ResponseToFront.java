@@ -60,6 +60,18 @@ public class ResponseToFront {
         return FromMessageAndResultCode("Incorrect username or password", Code.NOT_FOUND.getCode());
     }
 
+    public static ResponseToFront NotAuthorized() {
+        return ResponseToFront.FromMessageAndResultCode(Message.NOT_AUTHORIZED.getMessage(),Code.NOT_AUTHORIZED.getCode());
+    }
+
+    public static ResponseToFront NotFound() {
+        return ResponseToFront.FromMessageAndResultCode(Message.NOT_FOUND.getMessage(),Code.NOT_FOUND.getCode());
+    }
+
+    public static ResponseToFront FromExceptionMessage(String exceptionMessage) {
+        return ResponseToFront.FromMessageAndResultCode(exceptionMessage,Code.EXCEPTION.getCode());
+    }
+
     public String getMessage() {
         return message;
     }

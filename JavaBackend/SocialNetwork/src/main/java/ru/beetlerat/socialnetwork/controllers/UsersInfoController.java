@@ -151,7 +151,7 @@ public class UsersInfoController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<ShortUserInfoResponse> handleNoLoginUserException(NoLoginUserException exception) {
-        return ResponseEntity.ok(ShortUserInfoResponse.NotAuthorized());
+    private ResponseEntity<ResponseToFront> handleNoLoginUserException(NoLoginUserException exception) {
+        return ResponseEntity.ok(ResponseToFront.NotAuthorized());
     }
 }

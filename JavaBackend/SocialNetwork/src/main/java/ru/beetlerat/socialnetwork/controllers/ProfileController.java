@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.beetlerat.socialnetwork.dto.profile.ProfileStatusDTO;
+import ru.beetlerat.socialnetwork.dto.user.authorized.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.user.authorized.ShortUserInfoResponse;
 import ru.beetlerat.socialnetwork.dto.user.full.UserDTO;
 import ru.beetlerat.socialnetwork.models.User;
@@ -80,17 +81,17 @@ public class ProfileController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<ShortUserInfoResponse> handleNotFoundException(UserNotFoundException exception) {
-        return ResponseEntity.ok(ShortUserInfoResponse.NotFound());
+    private ResponseEntity<ResponseToFront> handleNotFoundException(UserNotFoundException exception) {
+        return ResponseEntity.ok(ResponseToFront.NotFound());
     }
 
     @ExceptionHandler
-    private ResponseEntity<ShortUserInfoResponse> handleNoLoginUserException(NoLoginUserException exception) {
-        return ResponseEntity.ok(ShortUserInfoResponse.NotAuthorized());
+    private ResponseEntity<ResponseToFront> handleNoLoginUserException(NoLoginUserException exception) {
+        return ResponseEntity.ok(ResponseToFront.NotAuthorized());
     }
 
     @ExceptionHandler
-    private ResponseEntity<ShortUserInfoResponse> handleNotValidException(NotValidException exception) {
-        return ResponseEntity.ok(ShortUserInfoResponse.FromExceptionMessage(exception.getMessage()));
+    private ResponseEntity<ResponseToFront> handleNotValidException(NotValidException exception) {
+        return ResponseEntity.ok(ResponseToFront.FromExceptionMessage(exception.getMessage()));
     }
 }

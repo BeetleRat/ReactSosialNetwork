@@ -66,9 +66,6 @@ public class User {
     @ManyToMany(mappedBy = "followedUsers", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     private Set<User> usersWhoFollowedMe = new HashSet();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private Set<RefreshToken> refreshTokens = new HashSet();
-
     public User() {
     }
 
@@ -172,9 +169,6 @@ public class User {
         return usersWhoFollowedMe;
     }
 
-    public Set<RefreshToken> getRefreshTokens() {
-        return refreshTokens;
-    }
 
     public void setUserID(int userID) {
         this.userID = userID;
@@ -254,14 +248,6 @@ public class User {
 
     public void setUsersWhoFollowedMe(Set<User> usersWhoFollowedMe) {
         this.usersWhoFollowedMe = usersWhoFollowedMe;
-    }
-
-    public void setRefreshTokens(Set<RefreshToken> refreshTokens) {
-        this.refreshTokens = refreshTokens;
-    }
-
-    public void addRefreshToken(RefreshToken refreshToken) {
-        this.refreshTokens.add(refreshToken);
     }
 
     @Override

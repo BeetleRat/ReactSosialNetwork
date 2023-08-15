@@ -10,14 +10,13 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import ru.beetlerat.socialnetwork.security.filters.JwtRequestFilter;
 import ru.beetlerat.socialnetwork.security.service.SSSecurityUserService;
+
+import java.util.concurrent.TimeUnit;
 
 @EnableWebSecurity
 @Configuration
@@ -26,13 +25,10 @@ import ru.beetlerat.socialnetwork.security.service.SSSecurityUserService;
 public class SecurityConfig {
     // Доступ к БД
     private final SSSecurityUserService securityUsersService;
-    // Фильтр авторизующий запрос по токену
-    private final JwtRequestFilter jwtRequestFilter;
 
     @Autowired
-    public SecurityConfig(SSSecurityUserService securityUsersService, JwtRequestFilter jwtRequestFilter) {
+    public SecurityConfig(SSSecurityUserService securityUsersService) {
         this.securityUsersService = securityUsersService;
-        this.jwtRequestFilter = jwtRequestFilter;
     }
 
     @Bean
@@ -45,10 +41,6 @@ public class SecurityConfig {
                     auth.antMatchers("/api/users").authenticated();
                     auth.anyRequest().permitAll(); // Разрешить всем доступ ко всем запросам
                 })
-                // Отключаем стандартные сессии
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
                 // Если пользователь попытался совершить запрос,
                 // на который у него нет прав
                 // то сгенерировать исключение UNAUTHORIZED
@@ -57,8 +49,13 @@ public class SecurityConfig {
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
                 )
                 .and()
-                // Добавляем созданный фильтр перед фильтром UsernamePasswordAuthenticationFilter
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .formLogin()
+                .loginProcessingUrl("/api/auth/login").permitAll()
+                .defaultSuccessUrl("/api/auth/me").permitAll()
+                .and()
+                .rememberMe().tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(23))
+                .rememberMeParameter("rememberMe")
+                .and()
                 .build();
     }
 
