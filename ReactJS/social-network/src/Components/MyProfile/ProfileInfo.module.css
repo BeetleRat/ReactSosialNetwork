@@ -1,0 +1,11 @@
+.contentStyle{
+    grid-area: content;
+    background-color: antiquewhite;
+}
+.contentWallpaperStyle{
+    width: 100%;
+}
+.photoStyle{
+    width: 20%;
+    height: 20%;
+}

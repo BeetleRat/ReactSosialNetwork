@@ -1,0 +1,24 @@
+/*Стиль области навигации*/
+.navStyle{
+    grid-area: nav;
+    background-color: chartreuse;
+}
+
+/*Стиль обычных ссылок*/
+.navStyle a{
+    text-decoration: none;
+    color: blue;
+    font-weight:bolder;
+}
+
+/*Стиль ссылок при наведении на них мышкой*/
+.navStyle a:hover{
+    color: red;
+    font-style: italic;
+}
+
+/*Стиль активированных ссылок в области навигации*/
+.navStyle a.active{
+    color: gold;
+    font-weight:900;
+}

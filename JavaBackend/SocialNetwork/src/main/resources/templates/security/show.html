@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Пользователи</title>
+</head>
+<body>
+    <main>
+        <h1>Список пользователей</h1>
+        <table width="75%">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Clear password</th>
+                <th>Photo</th>
+                <th>Looking for a job</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="i : ${#numbers.sequence(0, Users.size()-1, 1)}" align="center">
+                <td>
+                    <p th:text="${Users.get(i).getSecuritySettings().getUsername()}">Username</p>
+                </td>
+                <td>
+                    <a th:text="${Users.get(i).getEmail()}">Email</a>
+                </td>
+                <td>
+                    <a th:text="${Users.get(i).getSecuritySettings().getPassword()}">Password</a>
+                </td>
+                <td>
+                    <a th:text="${OpenPasswords.get(i)}">Open password</a>
+                </td>
+                <td>
+                    <img th:src="@{${Users.get(i).getImgURL()}}" height="100" width="100">
+                </td>
+                <td>
+                    <input type="checkbox" th:checked="${Users.get(i).isLookingForAJob()}" disabled>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>
