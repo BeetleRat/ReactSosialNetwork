@@ -151,6 +151,26 @@ public class UserDAO {
         entityManager.merge(loginUser);
     }
 
+    @Transactional
+    public void subscribeUserToUserByID(int userID, int followedUserID) {
+        User loginUser = getByID(userID);
+        User followedUser = getByID(followedUserID);
+
+        loginUser.getFollowedUsers().add(followedUser);
+
+        entityManager.merge(loginUser);
+    }
+
+    @Transactional
+    public void unsubscribeUserToUserByID(int userID, int unfollowedUserID) {
+        User loginUser = getByID(userID);
+        User unfollowedUser = getByID(unfollowedUserID);
+
+        loginUser.removeFollowedUsers(unfollowedUser);
+
+        entityManager.merge(loginUser);
+    }
+
     public User getCurrentLoginUser() {
         SecurityUserDetails currentUser = SecurityUserDetails.CurrentLoginUser();
         if (currentUser == null) {

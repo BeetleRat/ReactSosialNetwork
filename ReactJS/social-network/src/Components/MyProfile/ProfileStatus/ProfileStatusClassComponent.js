@@ -1,14 +1,14 @@
 import React from "react";
 
-class ProfileStatus extends React.Component {
+class ProfileStatusClassComponent extends React.PureComponent {
     state = {
-        editMode: false
+        editMode: false,
+        status: this.props.status
     }
 
     // componentDidUpdate(prevProps, prevState, snapshot) {
-    //     if(this.state!==prevState){
-    //         console.log(`PrevState: ${prevState}; newState: ${this.state}`);
-    //         console.log(`prevProps: ${prevProps}; newProps: ${this.props}`);
+    //     if (this.state !== prevState) {
+    //
     //     }
     // }
 
@@ -20,15 +20,14 @@ class ProfileStatus extends React.Component {
         );
     }
 
-    editModeOFF(event) {
-        let status = event.target.value;
+    editModeOFF() {
         this.setState(
             {
                 editMode: false
             }
         );
 
-        this.props.updateStatus(status);
+        this.props.updateStatus(this.props.authUserID, this.state.status);
     }
 
     changeInputTextStatus(event) {
@@ -59,4 +58,4 @@ class ProfileStatus extends React.Component {
     }
 }
 
-export default ProfileStatus
+export default ProfileStatusClassComponent;

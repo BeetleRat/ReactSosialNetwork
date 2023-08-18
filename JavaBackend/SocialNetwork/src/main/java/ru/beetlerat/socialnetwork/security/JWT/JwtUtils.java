@@ -76,6 +76,11 @@ public class JwtUtils {
     }
 
     // Получить секретный ключ для генерации токена основываясь на secretKey
+    public String headerToToken(String header) {
+        int prefixEndIndex = header.indexOf(tokenPrefix) + tokenPrefix.length();
+        return header.substring(prefixEndIndex);
+    }
+
     public SecretKey getRealSecretKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }

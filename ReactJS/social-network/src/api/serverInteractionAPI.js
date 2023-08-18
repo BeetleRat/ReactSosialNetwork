@@ -5,13 +5,13 @@ const AUTH_HEADER_PREFIX = "Bearer ";
 const TOKEN_KEY = "token";
 
 export const CODE = {
-    AUTHORIZED: 0,
-    NEW_TOKEN_RECEIVED:1,
-    NOT_AUTHORIZED:2,
-    NOT_VALID:3,
+    AUTHORIZED_AND_COMPLETED: 0,
+    NEW_TOKEN_RECEIVED: 1,
+    NOT_AUTHORIZED: 2,
+    NOT_VALID: 3,
     NOT_FOUND: 4,
-    CAPCHA_REQUIRED:10,
-    EXCEPTION:99
+    CAPCHA_REQUIRED: 10,
+    EXCEPTION: 99
 };
 
 
@@ -35,8 +35,8 @@ export const ProfileAPI = {
         return serverRequest.get("profile/status/" + userID)
             .then(response => response.data);
     },
-    updateLoggedUserStatus(status) {
-        return serverRequest.put("profile/", {status})
+    updateLoggedUserStatus(userID, status) {
+        return serverRequest.put(`profile/status/${userID}`, {status})
             .then(response => response.data);
     }
 }
@@ -44,18 +44,29 @@ export const ProfileAPI = {
 export const UsersAPI = {
     getUsersFromServer(page = 1, pageSize = 5) {
         // Обратите внимание, что возвращается не весь response, а только response.data
-        return serverRequest.get(`users?page=${page}&count=${pageSize}`)
+        return serverRequest.get(`users?page=${page}&count=${pageSize}&pageSize=${pageSize}`)
             .then(response => response.data);
-
     }
 };
 
 export const FollowAPI = {
-    followUser(id) {
-        return serverRequest.post('follow/' + id).then(response => response.data);
+    followUser(currentUserID, followedUserID) {
+        let followUserDTO = {
+            userID: currentUserID,
+            followedUserID: followedUserID,
+            follow: true
+        }
+
+        return serverRequest.post('follow', {...followUserDTO}).then(response => response.data);
     },
-    unfollowUser(id) {
-        return serverRequest.delete('follow/' + id).then(response => response.data);
+    unfollowUser(currentUserID, followedUserID) {
+        let followUserDTO = {
+            userID: currentUserID,
+            followedUserID: followedUserID,
+            follow: false
+        }
+
+        return serverRequest.post('follow', {...followUserDTO}).then(response => response.data);
     }
 };
 

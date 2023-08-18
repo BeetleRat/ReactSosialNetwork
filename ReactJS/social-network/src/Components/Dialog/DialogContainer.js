@@ -3,11 +3,12 @@ import {sendNewMessage} from "../../Redux/Redusers/DialogReducer";
 import Dialog from "./Dialog";
 import {withAuthRedirect} from "../../HOC/WithAuthRedirect";
 import {compose} from "redux";
+import {getMessageArray, getNameArray} from "../../Redux/Selectors/DialogSelectors";
 
 let MapStateToProps = (state) => {
     return {
-        names: state.dialogPage.nameArray,
-        messageArray: state.dialogPage.messageArray
+        names: getNameArray(state),
+        messageArray: getMessageArray(state)
     };
 };
 

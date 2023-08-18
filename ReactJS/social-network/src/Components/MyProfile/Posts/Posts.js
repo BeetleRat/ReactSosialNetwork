@@ -5,7 +5,6 @@ import AddPostForm from "./PostForm/AddPostForm";
 
 const Posts=(props)=>{
     const AddNewPost=(formData)=>{
-        debugger;
         return props.addNewPost(formData.newPostText);
     };
 

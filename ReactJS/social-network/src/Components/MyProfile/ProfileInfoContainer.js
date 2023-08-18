@@ -4,7 +4,8 @@ import ProfileInfo from "./ProfileInfo";
 import {addPost, setProfile, setStatus, updateStatus} from "../../Redux/Redusers/ProfileReducer";
 import {withRouter} from "react-router-dom";
 import {compose} from "redux";
-import {withAuthRedirect} from "../../HOC/WithAuthRedirect";
+import {getProfilePosts, getProfileUser} from "../../Redux/Selectors/ProfileSelectors";
+import {getAuthUsersID, getIsAuth} from "../../Redux/Selectors/AuthSelectors";
 
 
 // Классовая контейнерная компонента
@@ -20,9 +21,9 @@ class ProfileInfoContainer extends React.Component {
         let userID = this.props.match.params.userID;
         // Если в URL нет такого параметра(userID==undefined)
         if (!userID) {
-            if(this.props.isAuth){
+            if (this.props.isAuth) {
                 userID = this.props.authUserID;
-            }else {
+            } else {
                 userID = 23;
             }
         }
@@ -34,7 +35,8 @@ class ProfileInfoContainer extends React.Component {
         return (
             <ProfileInfo user={this.props.user} posts={this.props.posts}
                          addPost={this.props.addPost}
-                         setStatus={this.props.setStatus} updateStatus={this.props.updateStatus}/>
+                         setStatus={this.props.setStatus} updateStatus={this.props.updateStatus}
+                         authUserID={this.props.authUserID}/>
         )
     }
 }
@@ -46,10 +48,10 @@ class ProfileInfoContainer extends React.Component {
 // а из нее в презентационную)
 let MapStateToProps = (state) => {
     return {
-        user: state.profilePage.user,
-        posts: state.profilePage.postsArray,
-        authUserID: state.auth.userID,
-        isAuth:state.auth.isAuth
+        user: getProfileUser(state),
+        posts: getProfilePosts(state),
+        authUserID: getAuthUsersID(state),
+        isAuth: getIsAuth(state)
     }
 }
 

@@ -73,6 +73,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
     }
 
+    private String getUsernameFromToken(String jwt) {
+        String username = "";
+
+        try {
+            username = jwtUtils.getUsername(jwt);
+        } catch (ExpiredJwtException e) {
+            System.out.println("Время жизни токена вышло");
+        } catch (SignatureException e) {
+            System.out.println("Подпись не корректна");
+        }
+
+        return username;
+    }
+
     private void addUserAndPermissionsToSecurityContext(
             String username,
             List<SimpleGrantedAuthority> permissions
@@ -86,19 +100,5 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 );
 
         securityContext.setAuthentication(usernamePasswordAuthenticationToken);
-    }
-
-    private String getUsernameFromToken(String jwt) {
-        String username = "";
-
-        try {
-            username = jwtUtils.getUsername(jwt);
-        } catch (ExpiredJwtException e) {
-            System.out.println("Время жизни токена вышло");
-        } catch (SignatureException e) {
-            System.out.println("Подпись не корректна");
-        }
-
-        return username;
     }
 }

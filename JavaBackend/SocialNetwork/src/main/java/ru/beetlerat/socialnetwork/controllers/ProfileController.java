@@ -6,10 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.beetlerat.socialnetwork.dto.profile.ProfileStatusDTO;
+import ru.beetlerat.socialnetwork.dto.user.authorized.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.user.authorized.ShortUserInfoResponse;
 import ru.beetlerat.socialnetwork.dto.user.full.UserDTO;
 import ru.beetlerat.socialnetwork.models.User;
 import ru.beetlerat.socialnetwork.services.users.AuthUserService;
+import ru.beetlerat.socialnetwork.services.users.StatusService;
 import ru.beetlerat.socialnetwork.services.users.UsersCRUDService;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.NoLoginUserException;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.UserNotFoundException;
@@ -21,49 +23,43 @@ import java.util.Set;
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600, allowCredentials = "true")
 @RequestMapping("/api/profile")
 public class ProfileController {
-    private final UsersCRUDService UserCRUDService;
+    private final UsersCRUDService userCRUDService;
+    private final StatusService statusService;
     private final AuthUserService authService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public ProfileController(UsersCRUDService UserCRUDService, AuthUserService authService, ModelMapper modelMapper) {
-        this.UserCRUDService = UserCRUDService;
+    public ProfileController(UsersCRUDService UserCRUDService, StatusService statusService, AuthUserService authService, ModelMapper modelMapper) {
+        this.userCRUDService = UserCRUDService;
+        this.statusService = statusService;
         this.authService = authService;
         this.modelMapper = modelMapper;
     }
 
-
     @GetMapping(path = "/{id}")
     public ResponseEntity<UserDTO> getOneUserFromServerByID(@PathVariable("id") int id) {
-        return ResponseEntity.ok(convertToUserDTO(UserCRUDService.getByID(id)));
+        return ResponseEntity.ok(convertToUserDTO(userCRUDService.getByID(id)));
     }
 
     @GetMapping(path = "/status/{id}")
     public ResponseEntity<String> getUserStatusFromServerByID(@PathVariable("id") int id) {
-        return ResponseEntity.ok(UserCRUDService.getByID(id).getStatus());
+        return ResponseEntity.ok(statusService.getStatus(id));
     }
 
-
-    @PutMapping
-    public ResponseEntity<UserDTO> updateLoggedUserStatus(@RequestBody ProfileStatusDTO profileStatus, BindingResult bindingResult) {
+    @PutMapping(path = "/status/{id}")
+    public ResponseEntity<UserDTO> updateLoggedUserStatus(@PathVariable("id") int id, @RequestBody ProfileStatusDTO profileStatus, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             throw new NotValidException("Status not valid.");
         }
 
-        User user = profileStatusToLoginUser(profileStatus);
-        UserCRUDService.update(user.getUserID(), user);
+        statusService.updateStatus(id, profileStatus.getStatus());
 
-        return ResponseEntity.ok(convertToUserDTO(user));
+        return ResponseEntity.ok(convertToUserDTO(userCRUDService.getByID(id)));
     }
 
     // Конвертация из DTO в модели
-    private User profileStatusToLoginUser(ProfileStatusDTO profileStatus) {
-        User loginUser = authService.getCurrentLoginUser();
-        loginUser.setStatus(profileStatus.getStatus());
 
-        return loginUser;
-    }
 
     // Конвертация из модели в DTO
     private UserDTO convertToUserDTO(User user) {
@@ -80,17 +76,17 @@ public class ProfileController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<ShortUserInfoResponse> handleNotFoundException(UserNotFoundException exception) {
-        return ResponseEntity.ok(ShortUserInfoResponse.NotFound());
+    private ResponseEntity<ResponseToFront> handleNotFoundException(UserNotFoundException exception) {
+        return ResponseEntity.ok(ResponseToFront.NotFound());
     }
 
     @ExceptionHandler
-    private ResponseEntity<ShortUserInfoResponse> handleNoLoginUserException(NoLoginUserException exception) {
-        return ResponseEntity.ok(ShortUserInfoResponse.NotAuthorized());
+    private ResponseEntity<ResponseToFront> handleNoLoginUserException(NoLoginUserException exception) {
+        return ResponseEntity.ok(ResponseToFront.NotAuthorized());
     }
 
     @ExceptionHandler
-    private ResponseEntity<ShortUserInfoResponse> handleNotValidException(NotValidException exception) {
-        return ResponseEntity.ok(ShortUserInfoResponse.FromExceptionMessage(exception.getMessage()));
+    private ResponseEntity<ResponseToFront> handleNotValidException(NotValidException exception) {
+        return ResponseEntity.ok(ResponseToFront.FromExceptionMessage(exception.getMessage()));
     }
 }

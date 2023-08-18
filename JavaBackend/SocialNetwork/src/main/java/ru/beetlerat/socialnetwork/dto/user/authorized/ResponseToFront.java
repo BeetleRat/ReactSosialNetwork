@@ -22,7 +22,7 @@ public class ResponseToFront {
     }
 
     public enum Code {
-        AUTHORIZED(0),
+        AUTHORIZED_AND_COMPLETED(0),
         NEW_TOKEN_RECEIVED(1),
         NOT_AUTHORIZED(2),
         NOT_VALID(3),
@@ -52,12 +52,40 @@ public class ResponseToFront {
         this.resultCode = resultCode;
     }
 
+    public static ResponseToFront Ok() {
+        return new ResponseToFront("", Code.AUTHORIZED_AND_COMPLETED.getCode());
+    }
+
     public static ResponseToFront FromMessageAndResultCode(String message, int resultCode) {
         return new ResponseToFront(message, resultCode);
     }
 
     public static ResponseToFront BadCredentials() {
         return FromMessageAndResultCode("Incorrect username or password", Code.NOT_FOUND.getCode());
+    }
+
+    public static ResponseToFront NotAuthorized() {
+        ResponseToFront responseToFront = new ResponseToFront();
+        responseToFront.setMessage(Message.NOT_AUTHORIZED.getMessage());
+        responseToFront.setResultCode(Code.AUTHORIZED_AND_COMPLETED.getCode());
+
+        return responseToFront;
+    }
+
+    public static ResponseToFront NotFound() {
+        ResponseToFront responseToFront = new ResponseToFront();
+        responseToFront.setMessage(Message.NOT_FOUND.getMessage());
+        responseToFront.setResultCode(Code.NOT_AUTHORIZED.getCode());
+
+        return responseToFront;
+    }
+
+    public static ResponseToFront FromExceptionMessage(String exceptionMessage) {
+        ResponseToFront responseToFront = new ResponseToFront();
+        responseToFront.setMessage(exceptionMessage);
+        responseToFront.setResultCode(Code.EXCEPTION.getCode());
+
+        return responseToFront;
     }
 
     public String getMessage() {

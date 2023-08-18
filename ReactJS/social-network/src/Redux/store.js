@@ -5,7 +5,6 @@ import TotalProgressReducer from "./Redusers/TotalProgressReducer";
 import ProfileReducer from "./Redusers/ProfileReducer";
 import AuthReducer from "./Redusers/AurhReducer";
 import thunkMiddleware from "redux-thunk"
-import {applyMiddleware} from "redux";
 import {reducer as formReducer} from "redux-form"
 
 
@@ -21,7 +20,23 @@ let reducers = Redux.combineReducers(
         form: formReducer
     }
 );
+let store;
+const useReduxDevToolExtension = true;
 
-let store = Redux.createStore(reducers, applyMiddleware(thunkMiddleware));
+if (useReduxDevToolExtension) {
+    // Необходимо для работы с расширением Redux DevTools
+    const composeEnhancers =
+        window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || Redux.compose;
+
+    store =
+        Redux.createStore(
+            reducers,
+            composeEnhancers(
+                Redux.applyMiddleware(thunkMiddleware)
+            )
+        );
+} else {
+    store = Redux.createStore(reducers, Redux.applyMiddleware(thunkMiddleware));
+}
 
 export default store;

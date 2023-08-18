@@ -1,6 +1,14 @@
 import React from "react";
 import Header from "./Header";
 import {connect} from "react-redux";
+import {
+    getAuthUsersUsername,
+    getAuthUsersEmail,
+    getAuthUsersID,
+    getIsAuth,
+    getAccessToken
+} from "../../Redux/Selectors/AuthSelectors";
+import {getCurrentTaskID, getTasks} from "../../Redux/Selectors/ProgressSelectors";
 
 class HeaderContainer extends React.Component {
     componentDidMount() {
@@ -15,13 +23,13 @@ class HeaderContainer extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        userID: state.auth.userID,
-        email: state.auth.email,
-        username: state.auth.username,
-        isAuth: state.auth.isAuth,
-        token: state.auth.token,
-        tasks: state.progressPage.tasks,
-        currentTaskID: state.progressPage.currentTaskID
+        userID: getAuthUsersID(state),
+        email: getAuthUsersEmail(state),
+        username:getAuthUsersUsername(state),
+        isAuth: getIsAuth(state),
+        token: getAccessToken(state),
+        tasks: getTasks(state),
+        currentTaskID: getCurrentTaskID(state)
     }
 
 }

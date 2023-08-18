@@ -12,4 +12,5 @@ public interface UserListService {
     List<User> getList();
 
     List<User> getPaginationData(int page, int count);
+    void setPageSize(int pageSize);
 }

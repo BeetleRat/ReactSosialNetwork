@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class UserServiceImplementation implements UserListService, UserFollowService, AuthUserService, UsersCRUDService {
+public class UserServiceImplementation implements UserListService, UserFollowService, AuthUserService, UsersCRUDService, StatusService {
     private final UserDAO userDAO;
 
     @Autowired
@@ -34,6 +34,11 @@ public class UserServiceImplementation implements UserListService, UserFollowSer
     @Override
     public List<User> getPaginationData(int page, int count) {
         return userDAO.getPaginationData(page, count);
+    }
+
+    @Override
+    public void setPageSize(int pageSize) {
+        userDAO.setPageSize(pageSize);
     }
 
     @Override
@@ -82,9 +87,20 @@ public class UserServiceImplementation implements UserListService, UserFollowSer
         userDAO.subscribeLoginUserToUserByID(userID);
     }
 
+
     @Override
     public void unsubscribeLoginUserToUserByID(int userID) {
         userDAO.unsubscribeLoginUserToUserByID(userID);
+    }
+
+    @Override
+    public void subscribeUserToUserByID(int userID, int followedUserID) {
+        userDAO.subscribeUserToUserByID(userID, followedUserID);
+    }
+
+    @Override
+    public void unsubscribeUserToUserByID(int userID, int unfollowedUserID) {
+        userDAO.unsubscribeUserToUserByID(userID, unfollowedUserID);
     }
 
     @Override
@@ -105,5 +121,18 @@ public class UserServiceImplementation implements UserListService, UserFollowSer
     @Override
     public void logout() {
         userDAO.logoutUser();
+    }
+
+    @Override
+    public String getStatus(int userId) {
+        return getByID(userId).getStatus();
+    }
+
+    @Override
+    public void updateStatus(int userId, String newStatus) {
+        User user = getByID(userId);
+        user.setStatus(newStatus);
+
+        userDAO.update(user.getUserID(), user);
     }
 }

@@ -28,6 +28,7 @@ const User = (props) => {
                     <br/>}
 
             </div>
+            <hr/>
         </div>
     );
 }

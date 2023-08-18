@@ -1,5 +1,6 @@
-const ADD_NEW_TASK = "ADD-NEW-TASK";
-const CHANGE_CURRENT_MINUTES = "CHANGE-CURRENT-MINUTES";
+const REDUCER_NAME = "TotalProgressReducer/";
+const ADD_NEW_TASK = REDUCER_NAME + "ADD-NEW-TASK";
+const CHANGE_CURRENT_MINUTES = REDUCER_NAME + "CHANGE-CURRENT-MINUTES";
 
 let initialisationState = {
     tasks: [
@@ -7,7 +8,7 @@ let initialisationState = {
             id: 0,
             name: "React путь самурая 1",
             totalMinutes: 3034,
-            currenMinutes: 2019
+            currenMinutes: 2606
         },
         {
             id: 1,
@@ -47,7 +48,6 @@ const TotalProgressReducer = (state = initialisationState, action) => {
 }
 
 export const ChangeCurrentMinutes = (id, currenMinutes) => {
-    debugger;
     return {type: CHANGE_CURRENT_MINUTES, id, currenMinutes};
 }
 export const AddNewTask = () => {

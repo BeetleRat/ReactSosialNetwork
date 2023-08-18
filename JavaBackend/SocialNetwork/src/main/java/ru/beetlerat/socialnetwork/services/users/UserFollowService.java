@@ -12,5 +12,10 @@ public interface UserFollowService {
 
     void subscribeLoginUserToUserByID(int userID);
 
+
     void unsubscribeLoginUserToUserByID(int userID);
+
+    void subscribeUserToUserByID(int userID, int followedUserID);
+
+    void unsubscribeUserToUserByID(int userID, int unfollowedUserID);
 }

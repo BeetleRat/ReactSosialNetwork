@@ -1,11 +1,12 @@
 import {AuthAPI, CODE} from "../../api/serverInteractionAPI";
 import {stopSubmit} from "redux-form";
 
-const SET_USER_DATA = "SET-USER-DATA";
-const SET_AUTH = "SET-AUTH";
-const SET_ACCESS_TOKEN = "SET-ACCESS-TOKEN";
-const SET_REFRESH_TOKEN = "SET-REFRESH-TOKEN";
-const SET_EXCEPTION_MESSAGE = "SET-EXCEPTION-MESSAGE";
+const REDUCER_NAME = "AuthReducer/";
+const SET_USER_DATA = REDUCER_NAME + "SET-USER-DATA";
+const SET_AUTH = REDUCER_NAME + "SET-AUTH";
+const SET_ACCESS_TOKEN = REDUCER_NAME + "SET-ACCESS-TOKEN";
+const SET_REFRESH_TOKEN = REDUCER_NAME + "SET-REFRESH-TOKEN";
+const SET_EXCEPTION_MESSAGE = REDUCER_NAME + "SET-EXCEPTION-MESSAGE";
 
 
 let initialisationState = {
@@ -76,61 +77,61 @@ export const setAuthExceptionMessage = (authExceptionMessage) => {
 // Thunks
 
 export const login = (username, password, rememberMe) => {
-    return (dispatch) => {
-        AuthAPI.login(username, password, rememberMe).then(data => {
+    return async (dispatch) => {
+        let data = await AuthAPI.login(username, password, rememberMe);
 
-                if (data.resultCode !== CODE.AUTHORIZED && data.resultCode !== CODE.NEW_TOKEN_RECEIVED) {
-                    let errorMessage =
-                        data.message.length > 0
-                            ? data.message
-                            : "Incorrect username or password";
+        if (data.resultCode !== CODE.AUTHORIZED_AND_COMPLETED && data.resultCode !== CODE.NEW_TOKEN_RECEIVED) {
+            let errorMessage =
+                data.message.length > 0
+                    ? data.message
+                    : "Incorrect username or password";
 
-                    let showErrorOnForm =
-                        stopSubmit(
-                            "login",
-                            {_error: errorMessage}
-                        );
+            let showErrorOnForm =
+                stopSubmit(
+                    "login",
+                    {_error: errorMessage}
+                );
 
-                    dispatch(showErrorOnForm);
-                    return;
-                }
+            dispatch(showErrorOnForm);
+            return;
+        }
 
-                if (data.accessToken != null && data.accessToken !== "") {
-                    dispatch(setAccessToken(data.accessToken));
-                    AuthAPI.setAccessToken(data.accessToken);
-                    dispatch(
-                        setUserIDUsernameEmail(
-                            data.userInfo.userID,
-                            data.userInfo.username,
-                            data.userInfo.email
-                        )
-                    )
-                    dispatch(setAuth(true));
-                }
+        if (data.accessToken != null && data.accessToken !== "") {
+            dispatch(setAccessToken(data.accessToken));
+            AuthAPI.setAccessToken(data.accessToken);
+            dispatch(
+                setUserIDUsernameEmail(
+                    data.userInfo.userID,
+                    data.userInfo.username,
+                    data.userInfo.email
+                )
+            )
+            dispatch(setAuth(true));
+        }
 
-                if (data.refreshToken != null && data.refreshToken !== "") {
-                    dispatch(setRefreshToken(data.refreshToken));
-                }
-            }
-        );
+        if (data.refreshToken != null && data.refreshToken !== "") {
+            dispatch(setRefreshToken(data.refreshToken));
+        }
     }
 }
+
 
 export const logout = () => {
-    return (dispatch) => {
-        AuthAPI.logout().then(data => {
-                if (data.resultCode === CODE.NOT_AUTHORIZED) {
-                    dispatch(setAuth(false));
-                    dispatch(setAccessToken(""));
-                    dispatch(setRefreshToken(""));
-                    setUserIDUsernameEmail(
-                        null,
-                        null,
-                        null
-                    );
-                }
-            }
-        );
+    return async (dispatch) => {
+
+        let data = await AuthAPI.logout();
+
+        if (data.resultCode === CODE.NOT_AUTHORIZED) {
+            dispatch(setAuth(false));
+            dispatch(setAccessToken(""));
+            dispatch(setRefreshToken(""));
+            setUserIDUsernameEmail(
+                null,
+                null,
+                null
+            );
+        }
     }
 }
+
 export default AuthReducer;

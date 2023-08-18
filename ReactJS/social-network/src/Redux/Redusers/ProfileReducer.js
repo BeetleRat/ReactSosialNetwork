@@ -1,10 +1,12 @@
 import {ProfileAPI} from "../../api/serverInteractionAPI";
 
-const SET_USER = "SET-USER";
-const ADD_NEW_POST = "ADD-NEW-POST"
-const SET_STATUS = "SET-STATUS"
+const REDUCER_NAME = "ProfileReducer/";
+const SET_USER = REDUCER_NAME + "SET-USER";
+const ADD_NEW_POST = REDUCER_NAME + "ADD-NEW-POST"
+const SET_STATUS = REDUCER_NAME + "SET-STATUS"
+const DELETE_POST = REDUCER_NAME + "DELETE-POST"
 
-let initialisationStat = {
+let initialisationState = {
     user: null,
     postsArray: [
         {id: '1', text: "Хапнул пива", likes: '25'},
@@ -15,7 +17,7 @@ let initialisationStat = {
     ]
 }
 
-const ProfileReducer = (state = initialisationStat, action) => {
+const ProfileReducer = (state = initialisationState, action) => {
     switch (action.type) {
         case SET_USER:
             return {
@@ -38,8 +40,14 @@ const ProfileReducer = (state = initialisationStat, action) => {
                     status: action.status
                 }
             }
+        case DELETE_POST:
+            return {
+                ...state,
+                postsArray: state.postsArray.filter(post => post.id != action.postID)
+            }
         default:
     }
+
     return state;
 }
 
@@ -56,20 +64,24 @@ export const addPost = (newPost) => {
     return {type: ADD_NEW_POST, newPost}
 }
 
+export const deletePost = (postID) => {
+    return {type: DELETE_POST, postID}
+}
+
 // Thunks
 export const setProfile = (userID) => {
-    return (dispatch) => {
-        ProfileAPI.getProfile(userID).then(data => {
-            dispatch(setUser(data));
-        });
+    return async (dispatch) => {
+        let data = await ProfileAPI.getProfile(userID);
+
+        dispatch(setUser(data));
     }
 }
 
-export const updateStatus = (newStatus) => {
-    return (dispatch) => {
-        ProfileAPI.updateLoggedUserStatus(newStatus).then(data => {
-            dispatch(setUser(data));
-        });
+export const updateStatus = (userID, newStatus) => {
+    return async (dispatch) => {
+        let data = await ProfileAPI.updateLoggedUserStatus(userID, newStatus);
+
+        dispatch(setUser(data));
     }
 }
 

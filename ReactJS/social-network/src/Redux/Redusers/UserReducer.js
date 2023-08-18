@@ -1,11 +1,14 @@
-import {FollowAPI, ProfileAPI, UsersAPI} from "../../api/serverInteractionAPI";
+import {CODE, FollowAPI, UsersAPI} from "../../api/serverInteractionAPI";
+import users from "../../Components/Users/Users";
 
-const FOLLOW_USER = "FOLLOW-USER";
-const UNFOLLOW_USER = "UNFOLLOW-USER";
-const SET_USERS = "SET-USERS";
-const CHANGE_CURRENT_PAGE = "CHANGE-CURRENT-PAGE";
-const TOGGLE_LOADING = "TOGGLE-LOADING";
-const TOGGLE_FETCHING_USER = "TOGGLE-FETCHING-USER";
+const REDUCER_NAME = "UserReducer/";
+const FOLLOW_USER = REDUCER_NAME + "FOLLOW-USER";
+const UNFOLLOW_USER = REDUCER_NAME + "UNFOLLOW-USER";
+const SET_USERS = REDUCER_NAME + "SET-USERS";
+const CHANGE_CURRENT_PAGE = REDUCER_NAME + "CHANGE-CURRENT-PAGE";
+const TOGGLE_LOADING = REDUCER_NAME + "TOGGLE-LOADING";
+const TOGGLE_FETCHING_USER = REDUCER_NAME + "TOGGLE-FETCHING-USER";
+const SET_FOLLOWED_USERS = REDUCER_NAME + "SET-FOLLOWED-USERS";
 
 let initialisationState = {
     users: [],
@@ -29,7 +32,6 @@ const UserReducer = (state = initialisationState, action) => {
                     }
                 })
             }
-            break;
         case UNFOLLOW_USER:
             return {
                 ...state,
@@ -41,14 +43,12 @@ const UserReducer = (state = initialisationState, action) => {
                     }
                 })
             }
-            break;
         case SET_USERS:
             return {
                 ...state,
                 users: [...action.users],
                 totalUsersCount: action.totalUsersCount
             }
-            break;
         case CHANGE_CURRENT_PAGE:
             return {
                 ...state,
@@ -60,15 +60,22 @@ const UserReducer = (state = initialisationState, action) => {
                 isLoading: action.isLoading
             }
         case TOGGLE_FETCHING_USER:
-
             return {
                 ...state,
                 fetchingUsers:
                     action.isFetching
                         ? [...state.fetchingUsers, action.userID]
-                        : state.fetchingUsers.filter(id => id !== action.userID)
+                        : state.fetchingUsers.filter(id => id != action.userID)
             };
+        case SET_FOLLOWED_USERS:
+            return {
+                ...state,
+                users: users.map(user => {
+                    user.isFollow = action.followedUsersArray.contain(user.id);
 
+                    return user;
+                })
+            }
 
         default:
     }
@@ -95,50 +102,61 @@ export const toggleFetchingUser = (isFetching, userID) => {
     return {type: TOGGLE_FETCHING_USER, isFetching, userID}
 }
 
+export const setFollowedUsers = (followedUsersArray) => {
+    return {type: SET_FOLLOWED_USERS, followedUsersArray}
+}
+
 // Thunks
-export const getUsersFromServer = (page, pageSize) => {
-    return (dispatch) => {
+export const requestUsersFromServer = (page, pageSize) => {
+    return async (dispatch) => {
         dispatch(toggleLoading(true)); // Включить preloader
+
         // Запрос на сервер
-        UsersAPI.getUsersFromServer(page, pageSize).then((data) => {
-                dispatch(setUsers(
-                    data.users.map(
-                        user => {
-                            return {
-                                id: user.userID,
-                                imgURL: user.imgURL,
-                                followed: false,
-                                name: user.nickname,
-                                status: user.status,
-                                location: {country: user.country, city: user.city},
-                                isFollow: user.follow
-                            }
-                        }
-                    ),
-                    data.totalUsers));
-                dispatch(toggleLoading(false)); // Выключить preloader
-            }
-        );
+        let data = await UsersAPI.getUsersFromServer(page, pageSize);
+        dispatch(setUsers(
+            data.users.map(
+                user => {
+                    return {
+                        id: user.userID,
+                        imgURL: user.imgURL,
+                        followed: false,
+                        name: user.nickname,
+                        status: user.status,
+                        location: {country: user.country, city: user.city},
+                        isFollow: user.follow
+                    }
+                }
+            ),
+            data.totalUsers));
+
+        dispatch(toggleLoading(false)); // Выключить preloader
     }
 }
 
-export const followUser = (userID) => {
-    return (dispatch) => {
-        dispatch(toggleFetchingUser(true, userID));
-        FollowAPI.followUser(userID).then(response => {
-            dispatch(commitFollow(userID));
-            dispatch(toggleFetchingUser(false, userID));
-        });
+const followUnfollowUser = async (dispatch, currentUserID, userID, apiMethod, commitMethod) => {
+    dispatch(toggleFetchingUser(true, userID));
+
+    let data = await apiMethod(currentUserID, userID);
+
+    if (data.resultCode === CODE.AUTHORIZED_AND_COMPLETED) {
+        dispatch(commitMethod(userID));
+    }
+    dispatch(toggleFetchingUser(false, userID));
+}
+
+export const followUser = (currentUserID, userID) => {
+    return async (dispatch) => {
+        let apiMethod = FollowAPI.followUser.bind(FollowAPI);
+
+        await followUnfollowUser(dispatch, currentUserID, userID, apiMethod, commitFollow);
     }
 }
 
-export const unfollowUser = (userID) => {
-    return (dispatch) => {
-        dispatch(toggleFetchingUser(true, userID));
-        FollowAPI.unfollowUser(userID).then(response => {
-            dispatch(commitUnfollow(userID));
-            dispatch(toggleFetchingUser(false, userID));
-        });
+export const unfollowUser = (currentUserID, userID) => {
+    return async (dispatch) => {
+        let apiMethod = FollowAPI.unfollowUser.bind(FollowAPI);
+
+        await followUnfollowUser(dispatch, currentUserID, userID, apiMethod, commitUnfollow);
     }
 }
 

@@ -3,7 +3,8 @@ import styleClass from "./ProfileInfo.module.css"
 import Posts from "./Posts/Posts";
 import Preloader from "../CommonComponents/Preloader/Preloader";
 import defaultAvatar from "../../assets/images/defaultAvatar.png";
-import ProfileStatus from "./ProfileStatus/ProfileStatus";
+import ProfileStatusClassComponent from "./ProfileStatus/ProfileStatusClassComponent";
+import ProfileStatusWithHooks from "./ProfileStatus/ProfileStatusWithHooks";
 
 const ProfileInfo = (props) => {
     if (!props.user) {
@@ -25,7 +26,7 @@ const ProfileInfo = (props) => {
                 <img name="photo" className={styleClass.photoStyle}
                      src={props.user.imgURL === "" ? defaultAvatar : props.user.imgURL} alt="Фото профиля"/>
 
-                <ProfileStatus status={props.user.status} setStatus={props.setStatus} updateStatus={props.updateStatus}/>
+                <ProfileStatusWithHooks status={props.user.status} setStatus={props.setStatus} updateStatus={props.updateStatus} authUserID={props.authUserID}/>
                 <p name="country">Страна: {props.user.country}</p>
                 <p name="city">Город: {props.user.city}</p>
                 {

@@ -1,6 +1,6 @@
 import {connect} from "react-redux";
 import {
-    followUser, getUsersFromServer,
+    followUser, requestUsersFromServer,
     setCurrentPage,
     toggleFetchingUser,
     unfollowUser
@@ -8,6 +8,17 @@ import {
 import React from "react";
 import Users from "./Users";
 import Preloader from "../CommonComponents/Preloader/Preloader";
+import {
+
+    getCurrentPage, getFetchingUsers,
+    getPageSize,
+    getTotalUsersCount,
+    getUsers
+} from "../../Redux/Selectors/UserSelectors";
+import {getIsLoading} from "../../Redux/Selectors/LoadingSelectors";
+import {getIsAuth, getAuthUsersID} from "../../Redux/Selectors/AuthSelectors";
+import {compose} from "redux";
+import {withAuthRedirect} from "../../HOC/WithAuthRedirect";
 
 // Классовая компонента, отвечающая за взаимодействие с REST сервисом_______________________
 class UsersContainer extends React.Component {
@@ -23,7 +34,7 @@ class UsersContainer extends React.Component {
     // Метод взаимодействия с сервером
     // Получить список пользователей со страницы page
     GetUsersFromServer(page) {
-       this.props.getUsersFromServer(page,this.props.pageSize);
+        this.props.getUsersFromServer(page, this.props.pageSize);
     };
 
     // Метод нажания на "кнопку" страницы
@@ -49,7 +60,8 @@ class UsersContainer extends React.Component {
                 <Users users={this.props.users} fetchingUsers={this.props.fetchingUsers}
                        totalUsers={this.props.totalUsersCount}
                        pageSize={this.props.pageSize} currentPage={this.props.currentPage}
-                       isAuth={this.props.isAuth} changePage={this.changePage}
+                       isAuth={this.props.isAuth} currentUserID={this.props.currentUserID}
+                       changePage={this.changePage}
                        followUser={this.props.followUser} unfollowUser={this.props.unfollowUser}
                        toggleFetchingUser={this.props.toggleFetchingUser}/>
             </div>
@@ -57,22 +69,31 @@ class UsersContainer extends React.Component {
     };
 };
 // Конец классовой компоненты___________________________________________________________
+
 const MapStateToProps = (state) => {
     return {
-        users: state.userPage.users,
-        fetchingUsers: state.userPage.fetchingUsers,
-        pageSize: state.userPage.pageSize,
-        totalUsersCount: state.userPage.totalUsersCount,
-        currentPage: state.userPage.currentPage,
-        isLoading: state.userPage.isLoading,
-        isAuth: state.auth.isAuth
+
+        users: getUsers(state),
+        fetchingUsers: getFetchingUsers(state),
+        pageSize: getPageSize(state),
+        totalUsersCount: getTotalUsersCount(state),
+        currentPage: getCurrentPage(state),
+        isLoading: getIsLoading(state),
+        isAuth: getIsAuth(state),
+        currentUserID: getAuthUsersID(state)
     };
 }
 
-export default connect(MapStateToProps, {
-    followUser,
-    unfollowUser,
-    setCurrentPage,
-    toggleFetchingUser,
-    getUsersFromServer
-})(UsersContainer);
+export default compose(
+    withAuthRedirect,
+    connect(
+        MapStateToProps,
+        {
+            followUser,
+            unfollowUser,
+            setCurrentPage,
+            toggleFetchingUser,
+            getUsersFromServer: requestUsersFromServer
+        }
+    )
+)(UsersContainer);

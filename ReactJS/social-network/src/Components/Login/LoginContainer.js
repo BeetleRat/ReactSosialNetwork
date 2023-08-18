@@ -1,14 +1,21 @@
 import Login from "./Login";
 import {connect} from "react-redux";
 import {login, logout} from "../../Redux/Redusers/AurhReducer";
+import {
+    getAuthExceptionMessage,
+    getAuthUsersEmail,
+    getAuthUsersUsername,
+    getIsAuth
+} from "../../Redux/Selectors/AuthSelectors";
+import {setFollowedUsers} from "../../Redux/Redusers/UserReducer";
 
 const mapStateToProps = (state) => {
     return {
-        authExceptionMessage: state.auth.authExceptionMessage,
-        isAuth: state.auth.isAuth,
-        username: state.auth.username,
-        email: state.auth.email
+        authExceptionMessage: getAuthExceptionMessage(state),
+        isAuth: getIsAuth(state),
+        username: getAuthUsersUsername(state),
+        email: getAuthUsersEmail(state)
     }
 }
 
-export default connect(mapStateToProps, {login, logout})(Login)
+export default connect(mapStateToProps, {login, logout, setFollowedUsers})(Login)

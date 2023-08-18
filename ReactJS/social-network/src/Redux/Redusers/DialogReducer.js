@@ -1,4 +1,5 @@
-const SEND_NEW_MESSAGE = 'SEND-NEW-MESSAGE';
+const REDUCER_NAME = "DialogReducer/";
+const SEND_NEW_MESSAGE = REDUCER_NAME + 'SEND-NEW-MESSAGE';
 
 let initialisationState = {
     nameArray: [
