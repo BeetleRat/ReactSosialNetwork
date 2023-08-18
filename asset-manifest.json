@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/ReactSosialNetwork/static/css/main.5a45ca88.css",
-    "main.js": "/ReactSosialNetwork/static/js/main.8395c390.js",
+    "main.js": "/ReactSosialNetwork/static/js/main.ccf1b39f.js",
     "static/css/52.ba7fa346.chunk.css": "/ReactSosialNetwork/static/css/52.ba7fa346.chunk.css",
     "static/js/52.8e898c75.chunk.js": "/ReactSosialNetwork/static/js/52.8e898c75.chunk.js",
     "static/css/898.5edadc07.chunk.css": "/ReactSosialNetwork/static/css/898.5edadc07.chunk.css",
@@ -13,7 +13,7 @@
     "static/media/preloder.gif": "/ReactSosialNetwork/static/media/preloder.04e93c58013770ba7dfd.gif",
     "index.html": "/ReactSosialNetwork/index.html",
     "main.5a45ca88.css.map": "/ReactSosialNetwork/static/css/main.5a45ca88.css.map",
-    "main.8395c390.js.map": "/ReactSosialNetwork/static/js/main.8395c390.js.map",
+    "main.ccf1b39f.js.map": "/ReactSosialNetwork/static/js/main.ccf1b39f.js.map",
     "52.ba7fa346.chunk.css.map": "/ReactSosialNetwork/static/css/52.ba7fa346.chunk.css.map",
     "52.8e898c75.chunk.js.map": "/ReactSosialNetwork/static/js/52.8e898c75.chunk.js.map",
     "898.5edadc07.chunk.css.map": "/ReactSosialNetwork/static/css/898.5edadc07.chunk.css.map",
@@ -23,6 +23,6 @@
   },
   "entrypoints": [
     "static/css/main.5a45ca88.css",
-    "static/js/main.8395c390.js"
+    "static/js/main.ccf1b39f.js"
   ]
 }
