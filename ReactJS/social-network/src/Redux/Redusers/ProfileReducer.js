@@ -1,10 +1,11 @@
-import {ProfileAPI} from "../../api/serverInteractionAPI";
+import {CODE, ProfileAPI} from "../../api/serverInteractionAPI";
 
 const REDUCER_NAME = "ProfileReducer/";
 const SET_USER = REDUCER_NAME + "SET-USER";
 const ADD_NEW_POST = REDUCER_NAME + "ADD-NEW-POST"
 const SET_STATUS = REDUCER_NAME + "SET-STATUS"
 const DELETE_POST = REDUCER_NAME + "DELETE-POST"
+const UPDATE_PHOTO = REDUCER_NAME + "UPDATE-PHOTO"
 
 let initialisationState = {
     user: null,
@@ -45,6 +46,14 @@ const ProfileReducer = (state = initialisationState, action) => {
                 ...state,
                 postsArray: state.postsArray.filter(post => post.id != action.postID)
             }
+        case UPDATE_PHOTO:
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    imgURL: action.imgURL
+                }
+            }
         default:
     }
 
@@ -68,6 +77,10 @@ export const deletePost = (postID) => {
     return {type: DELETE_POST, postID}
 }
 
+export const updatePhoto = (imgURL) => {
+    return {type: UPDATE_PHOTO, imgURL}
+}
+
 // Thunks
 export const setProfile = (userID) => {
     return async (dispatch) => {
@@ -79,9 +92,19 @@ export const setProfile = (userID) => {
 
 export const updateStatus = (userID, newStatus) => {
     return async (dispatch) => {
-        let data = await ProfileAPI.updateLoggedUserStatus(userID, newStatus);
+        let data = await ProfileAPI.updateUserStatus(userID, newStatus);
 
         dispatch(setUser(data));
+    }
+}
+
+export const savePhoto = (userID, photo) => {
+    return async (dispatch) => {
+        let data = await ProfileAPI.savePhoto(userID, photo);
+
+        if (data.resultCode === CODE.AUTHORIZED_AND_COMPLETED) {
+            dispatch(updatePhoto(data.photoURL))
+        }
     }
 }
 

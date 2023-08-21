@@ -3,7 +3,7 @@ import Navigation from "./Components/Navigation/Navigation";
 import Header from "./Components/Header/HeaderContainer";
 import Login from "./Components/Login/LoginContainer";
 import {withSuspense} from "./HOC/WithSuspense";
-import {BrowserRouter, Route} from "react-router-dom";
+import {BrowserRouter, HashRouter, Route} from "react-router-dom";
 import {Provider} from "react-redux";
 import store from "./Redux/store";
 import React from "react";
@@ -33,11 +33,11 @@ const AppComponent = (props) => {
 
 const App = (props) => {
     return (
-        <BrowserRouter>
+        <HashRouter>
             <Provider store={store}>
                 <AppComponent/>
             </Provider>
-        </BrowserRouter>
+        </HashRouter>
     );
 }
 export default App;

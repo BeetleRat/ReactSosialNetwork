@@ -1,4 +1,4 @@
-package ru.beetlerat.socialnetwork.dto.user.authorized;
+package ru.beetlerat.socialnetwork.dto;
 
 public class ResponseToFront {
     public enum Message {

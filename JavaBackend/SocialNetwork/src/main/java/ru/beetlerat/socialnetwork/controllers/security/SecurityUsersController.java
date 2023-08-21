@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.beetlerat.socialnetwork.dto.user.authorized.ResponseToFront;
+import ru.beetlerat.socialnetwork.dto.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.user.full.FullUserInfoDTO;
 import ru.beetlerat.socialnetwork.models.User;
 import ru.beetlerat.socialnetwork.security.types.UserRoles;
@@ -20,7 +20,6 @@ import ru.beetlerat.socialnetwork.utill.exceptions.user.UserNotFoundException;
 import ru.beetlerat.socialnetwork.utill.exceptions.NotValidException;
 
 @Controller
-@CrossOrigin(origins = "http://localhost:8080")
 @RequestMapping("/security/users")
 public class SecurityUsersController {
 

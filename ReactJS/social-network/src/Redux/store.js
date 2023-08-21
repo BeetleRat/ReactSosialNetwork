@@ -20,23 +20,17 @@ let reducers = Redux.combineReducers(
         form: formReducer
     }
 );
-let store;
-const useReduxDevToolExtension = true;
+// Необходимо для работы с расширением Redux DevTools
+const composeEnhancers =
+    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || Redux.compose;
 
-if (useReduxDevToolExtension) {
-    // Необходимо для работы с расширением Redux DevTools
-    const composeEnhancers =
-        window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || Redux.compose;
+let store =
+    Redux.createStore(
+        reducers,
+        composeEnhancers(
+            Redux.applyMiddleware(thunkMiddleware)
+        )
+    );
 
-    store =
-        Redux.createStore(
-            reducers,
-            composeEnhancers(
-                Redux.applyMiddleware(thunkMiddleware)
-            )
-        );
-} else {
-    store = Redux.createStore(reducers, Redux.applyMiddleware(thunkMiddleware));
-}
 
 export default store;

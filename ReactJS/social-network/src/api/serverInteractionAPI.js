@@ -1,4 +1,5 @@
 import axios from "axios";
+import header from "../Components/Header/Header";
 
 const AUTH_HEADER = "Authorization";
 const AUTH_HEADER_PREFIX = "Bearer ";
@@ -35,9 +36,23 @@ export const ProfileAPI = {
         return serverRequest.get("profile/status/" + userID)
             .then(response => response.data);
     },
-    updateLoggedUserStatus(userID, status) {
+    updateUserStatus(userID, status) {
         return serverRequest.put(`profile/status/${userID}`, {status})
             .then(response => response.data);
+    },
+    savePhoto(userID, photo) {
+        const formData = new FormData();
+        formData.append(`id`, userID);
+        formData.append(`file`, photo);
+
+        return serverRequest.put("profile/photo/",
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            }
+        ).then(response => response.data);
     }
 }
 

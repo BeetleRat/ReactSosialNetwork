@@ -8,7 +8,7 @@ let initialisationState = {
             id: 0,
             name: "React путь самурая 1",
             totalMinutes: 3034,
-            currenMinutes: 2606
+            currenMinutes: 2714
         },
         {
             id: 1,

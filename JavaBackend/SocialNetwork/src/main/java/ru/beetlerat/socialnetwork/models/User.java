@@ -68,6 +68,8 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<RefreshToken> refreshTokens = new HashSet();
+    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private ImageModel profilePhoto;
 
     public User() {
     }
@@ -176,6 +178,10 @@ public class User {
         return refreshTokens;
     }
 
+    public ImageModel getProfilePhoto() {
+        return profilePhoto;
+    }
+
     public void setUserID(int userID) {
         this.userID = userID;
     }
@@ -260,8 +266,8 @@ public class User {
         this.refreshTokens = refreshTokens;
     }
 
-    public void addRefreshToken(RefreshToken refreshToken) {
-        this.refreshTokens.add(refreshToken);
+    public void setProfilePhoto(ImageModel profilePhoto) {
+        this.profilePhoto = profilePhoto;
     }
 
     @Override
@@ -353,6 +359,10 @@ public class User {
                 user.removeFollowedUsers(this);
             }
         }
+    }
+
+    public void addRefreshToken(RefreshToken refreshToken) {
+        this.refreshTokens.add(refreshToken);
     }
 
     public void setAllFromAnotherUser(User copedUser) {

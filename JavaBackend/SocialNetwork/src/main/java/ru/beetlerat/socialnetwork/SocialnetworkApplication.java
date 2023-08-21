@@ -18,4 +18,6 @@ public class SocialnetworkApplication {
 	public ModelMapper modelMapper(){
 		return new ModelMapper();
 	}
+
+
 }

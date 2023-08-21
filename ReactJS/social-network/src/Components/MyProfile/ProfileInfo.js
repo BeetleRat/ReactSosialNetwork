@@ -2,9 +2,7 @@
 import styleClass from "./ProfileInfo.module.css"
 import Posts from "./Posts/Posts";
 import Preloader from "../CommonComponents/Preloader/Preloader";
-import defaultAvatar from "../../assets/images/defaultAvatar.png";
-import ProfileStatusClassComponent from "./ProfileStatus/ProfileStatusClassComponent";
-import ProfileStatusWithHooks from "./ProfileStatus/ProfileStatusWithHooks";
+import ProfileDescription from "./ProfileDescription/ProfileDescription";
 
 const ProfileInfo = (props) => {
     if (!props.user) {
@@ -12,27 +10,13 @@ const ProfileInfo = (props) => {
     }
 
     return (
-        /*Использование стиля contentStyle
-        из класса стилей styleClass*/
         <div className={styleClass.contentStyle}>
-
-            {/*<div>*/}
-            {/*    <img name="wallpaper" className={styleClass.contentWallpaperStyle}*/}
-            {/*         src='https://glass-vector.com/static2/preview2/stock-vector-kuhonnyy-fartuk-1644-14813.jpg'*/}
-            {/*         alt="Обои"/>*/}
-            {/*</div>*/}
-            <div name="profileInfo">
-                <h3 name="nickname">{props.user.nickname}</h3>
-                <img name="photo" className={styleClass.photoStyle}
-                     src={props.user.imgURL === "" ? defaultAvatar : props.user.imgURL} alt="Фото профиля"/>
-
-                <ProfileStatusWithHooks status={props.user.status} setStatus={props.setStatus} updateStatus={props.updateStatus} authUserID={props.authUserID}/>
-                <p name="country">Страна: {props.user.country}</p>
-                <p name="city">Город: {props.user.city}</p>
-                {
-                    props.user.lookingForAJob ? <p>Ищу работу: {props.user.searchJobDescription}</p> : ""
-                }
-            </div>
+            <ProfileDescription user={props.user}
+                                isOwner={props.isOwner}
+                                setStatus={props.setStatus}
+                                updateStatus={props.updateStatus}
+                                authUserID={props.authUserID}
+                                savePhoto={props.savePhoto}/>
 
             <Posts posts={props.posts} addNewPost={props.addPost}/>
         </div>

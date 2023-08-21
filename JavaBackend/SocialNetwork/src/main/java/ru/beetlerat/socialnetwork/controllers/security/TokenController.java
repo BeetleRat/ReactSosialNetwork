@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.beetlerat.socialnetwork.dto.user.authorized.AuthorizationRefreshTokenDTO;
 import ru.beetlerat.socialnetwork.dto.user.authorized.AuthorizationUserInfoDTO;
 import ru.beetlerat.socialnetwork.dto.user.authorized.JWTokenDTOResponse;
-import ru.beetlerat.socialnetwork.dto.user.authorized.ResponseToFront;
+import ru.beetlerat.socialnetwork.dto.ResponseToFront;
 import ru.beetlerat.socialnetwork.models.RefreshToken;
 import ru.beetlerat.socialnetwork.models.User;
 import ru.beetlerat.socialnetwork.security.JWT.JwtUtils;
@@ -20,7 +20,6 @@ import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenNotFoundException;
 import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenRefreshedException;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600, allowCredentials = "true")
 @RequestMapping("/security/token")
 public class TokenController {
     private final FindUserService findUserService;

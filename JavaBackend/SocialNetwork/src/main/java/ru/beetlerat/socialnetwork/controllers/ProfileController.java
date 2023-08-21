@@ -2,14 +2,18 @@ package ru.beetlerat.socialnetwork.controllers;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import ru.beetlerat.socialnetwork.dto.profile.ProfilePhotoURLResponse;
 import ru.beetlerat.socialnetwork.dto.profile.ProfileStatusDTO;
-import ru.beetlerat.socialnetwork.dto.user.authorized.ResponseToFront;
-import ru.beetlerat.socialnetwork.dto.user.authorized.ShortUserInfoResponse;
+import ru.beetlerat.socialnetwork.dto.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.user.full.UserDTO;
 import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.security.JWT.JwtUtils;
+import ru.beetlerat.socialnetwork.services.files.ImageService;
 import ru.beetlerat.socialnetwork.services.users.AuthUserService;
 import ru.beetlerat.socialnetwork.services.users.StatusService;
 import ru.beetlerat.socialnetwork.services.users.UsersCRUDService;
@@ -17,21 +21,23 @@ import ru.beetlerat.socialnetwork.utill.exceptions.user.NoLoginUserException;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.UserNotFoundException;
 import ru.beetlerat.socialnetwork.utill.exceptions.NotValidException;
 
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600, allowCredentials = "true")
 @RequestMapping("/api/profile")
 public class ProfileController {
     private final UsersCRUDService userCRUDService;
     private final StatusService statusService;
+    private final ImageService imageService;
     private final AuthUserService authService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public ProfileController(UsersCRUDService UserCRUDService, StatusService statusService, AuthUserService authService, ModelMapper modelMapper) {
+    public ProfileController(UsersCRUDService UserCRUDService, StatusService statusService, ImageService imageService, AuthUserService authService, ModelMapper modelMapper) {
         this.userCRUDService = UserCRUDService;
         this.statusService = statusService;
+        this.imageService = imageService;
         this.authService = authService;
         this.modelMapper = modelMapper;
     }
@@ -47,7 +53,7 @@ public class ProfileController {
     }
 
     @PutMapping(path = "/status/{id}")
-    public ResponseEntity<UserDTO> updateLoggedUserStatus(@PathVariable("id") int id, @RequestBody ProfileStatusDTO profileStatus, BindingResult bindingResult) {
+    public ResponseEntity<UserDTO> updateUserStatus(@PathVariable("id") int id, @RequestBody ProfileStatusDTO profileStatus, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             throw new NotValidException("Status not valid.");
@@ -56,6 +62,26 @@ public class ProfileController {
         statusService.updateStatus(id, profileStatus.getStatus());
 
         return ResponseEntity.ok(convertToUserDTO(userCRUDService.getByID(id)));
+    }
+
+    @PutMapping(path = "/photo")
+    public ResponseEntity<ResponseToFront> updateUserPhoto(
+            @RequestParam("id") Integer userID,
+            @RequestParam("file") MultipartFile photo) {
+
+        if (photo == null || photo.isEmpty()) {
+            return ResponseEntity.ok(ResponseToFront.FromExceptionMessage("Фото не найдено."));
+        }
+
+        User user = userCRUDService.getByID(userID);
+
+        String imgURL = imageService.savePhotoAndGetURL(user, photo);
+
+        if (imgURL.equals("")) {
+            return ResponseEntity.ok(ResponseToFront.FromExceptionMessage("Ошибка сохранения в БД."));
+        }
+
+        return ResponseEntity.ok(new ProfilePhotoURLResponse(imgURL));
     }
 
     // Конвертация из DTO в модели

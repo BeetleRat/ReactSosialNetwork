@@ -7,14 +7,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.beetlerat.socialnetwork.models.User;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // Класс взаимодействия с переменными в application.properties
 // Данный класс реализует взаимодействие со свойствами начинающимеся на application.jwt
@@ -40,6 +38,12 @@ public class JwtUtils {
         Duration accessTokenLifetime = Duration.of(accessTokenLifetimeInMinutes, ChronoUnit.MINUTES);
 
         return generateTokenWithLifetime(userDetails, accessTokenLifetime);
+    }
+
+    public String getAuthUsernameFromHeader(String authHeader) {
+        String jwtToken = headerToToken(authHeader);
+
+        return getUsername(jwtToken);
     }
 
     public String generateRefreshToken(UserDetails userDetails) {

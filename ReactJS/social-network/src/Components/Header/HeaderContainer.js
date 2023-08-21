@@ -11,9 +11,6 @@ import {
 import {getCurrentTaskID, getTasks} from "../../Redux/Selectors/ProgressSelectors";
 
 class HeaderContainer extends React.Component {
-    componentDidMount() {
-
-    }
 
     render() {
         return (<Header userID={this.props.userID} email={this.props.email} username={this.props.username}

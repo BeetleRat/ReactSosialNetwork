@@ -1,5 +1,7 @@
 package ru.beetlerat.socialnetwork.dto.user.authorized;
 
+import ru.beetlerat.socialnetwork.dto.ResponseToFront;
+
 public class JWTokenDTOResponse extends ResponseToFront {
     private String refreshToken;
     private String accessToken;

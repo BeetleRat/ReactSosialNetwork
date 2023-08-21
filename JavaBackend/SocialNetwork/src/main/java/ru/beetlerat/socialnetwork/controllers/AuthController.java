@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import ru.beetlerat.socialnetwork.dto.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.user.authorized.*;
 import ru.beetlerat.socialnetwork.models.User;
 import ru.beetlerat.socialnetwork.security.JWT.JwtUtils;
@@ -17,7 +18,6 @@ import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenRefreshedException
 import ru.beetlerat.socialnetwork.utill.exceptions.user.NoLoginUserException;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600, allowCredentials = "true")
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthUserService authService;

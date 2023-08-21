@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.beetlerat.socialnetwork.dto.user.authorized.ResponseToFront;
+import ru.beetlerat.socialnetwork.dto.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.user.full.UserDTO;
 import ru.beetlerat.socialnetwork.dto.user.full.FullUserInfoDTO;
 import ru.beetlerat.socialnetwork.dto.user.full.UsersResponseDTO;
@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600, allowCredentials = "true")
 @RequestMapping("/api/users")
 public class UsersInfoController {
     private final UserListService userListService;
@@ -94,10 +93,10 @@ public class UsersInfoController {
     }
 
     private Optional<User> getAuthUserFromHeader(String authHeader) {
-        String jwtToken = jwtUtils.headerToToken(authHeader);
-        String requestedUserUsername = jwtUtils.getUsername(jwtToken);
+        String authUsername = jwtUtils.getAuthUsernameFromHeader(authHeader);
+        User authUser = findUserService.getByUsername(authUsername);
 
-        return Optional.ofNullable(findUserService.getByUsername(requestedUserUsername));
+        return Optional.ofNullable(authUser);
     }
 
     // Конвертация из DTO в модели
