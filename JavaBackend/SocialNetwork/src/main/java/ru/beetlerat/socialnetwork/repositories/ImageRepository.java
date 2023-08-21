@@ -6,5 +6,5 @@ import ru.beetlerat.socialnetwork.models.ImageModel;
 
 @Repository
 public interface ImageRepository extends JpaRepository<ImageModel, Integer> {
-    ImageModel findByOriginalFileName(String name);
+    ImageModel findByName(String name);
 }

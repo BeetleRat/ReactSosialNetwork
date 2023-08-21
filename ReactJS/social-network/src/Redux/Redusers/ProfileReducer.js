@@ -103,7 +103,7 @@ export const savePhoto = (userID, photo) => {
         let data = await ProfileAPI.savePhoto(userID, photo);
 
         if (data.resultCode === CODE.AUTHORIZED_AND_COMPLETED) {
-            dispatch(updatePhoto(data.photoURL))
+            dispatch(updatePhoto(data.imgURL));
         }
     }
 }

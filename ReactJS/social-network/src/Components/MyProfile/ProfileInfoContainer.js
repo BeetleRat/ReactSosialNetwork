@@ -11,7 +11,7 @@ import {getAuthUsersID, getIsAuth} from "../../Redux/Selectors/AuthSelectors";
 // Классовая контейнерная компонента
 // Осуществляет взаимодействие с сервером
 
-class ProfileInfoContainer extends React.Component {
+class ProfileInfoContainer extends React.PureComponent {
     state = {
         userID: 23,
         isOwner: false,

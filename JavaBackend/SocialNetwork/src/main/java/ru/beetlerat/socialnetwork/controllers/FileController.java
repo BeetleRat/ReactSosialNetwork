@@ -5,7 +5,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beetlerat.socialnetwork.services.files.ImageService;
+import ru.beetlerat.socialnetwork.utill.exceptions.files.CanNotReadFileException;
 import ru.beetlerat.socialnetwork.utill.exceptions.files.FileNotFoundInDatabaseException;
+import ru.beetlerat.socialnetwork.utill.exceptions.files.FileNotFoundInDiskException;
 
 @RestController
 @RequestMapping("/img")
@@ -32,4 +34,17 @@ public class FileController {
             FileNotFoundInDatabaseException exception) {
         return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler
+    private ResponseEntity handleFileNotFoundInDiskException(
+            FileNotFoundInDiskException exception) {
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity handleCanNotReadFileException(
+            CanNotReadFileException exception) {
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
+    }
+
 }

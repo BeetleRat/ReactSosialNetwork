@@ -3,7 +3,6 @@ package ru.beetlerat.socialnetwork.models;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.Arrays;
 
 @Entity
 @Table(name = "images")
@@ -16,22 +15,11 @@ public class ImageModel {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "original_file_name")
-    private String originalFileName;
-
-    @Column(name = "size")
-    private Long size;
-
-    @Column(name = "content_type")
-    private String contentType;
+    @Column(name = "image_path")
+    private String imagePath;
 
     @Column(name = "url")
     private String url;
-
-    @Lob
-    @Type(type = "org.hibernate.type.BinaryType")
-    @Column(name = "bytes")
-    private byte[] bytes;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
@@ -41,14 +29,11 @@ public class ImageModel {
 
     }
 
-    public ImageModel(Integer id, String name, String originalFileName, Long size, String contentType, String url, byte[] bytes) {
+    public ImageModel(Integer id, String name, String imagePath, String url) {
         this.id = id;
         this.name = name;
-        this.originalFileName = originalFileName;
-        this.size = size;
-        this.contentType = contentType;
+        this.imagePath = imagePath;
         this.url = url;
-        this.bytes = bytes;
     }
 
     public Integer getId() {
@@ -59,24 +44,12 @@ public class ImageModel {
         return name;
     }
 
-    public String getOriginalFileName() {
-        return originalFileName;
-    }
-
-    public Long getSize() {
-        return size;
-    }
-
-    public String getContentType() {
-        return contentType;
+    public String getImagePath() {
+        return imagePath;
     }
 
     public String getUrl() {
         return url;
-    }
-
-    public byte[] getBytes() {
-        return bytes;
     }
 
     public User getUser() {
@@ -91,24 +64,12 @@ public class ImageModel {
         this.name = name;
     }
 
-    public void setOriginalFileName(String originalFileName) {
-        this.originalFileName = originalFileName;
-    }
-
-    public void setSize(Long size) {
-        this.size = size;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
     }
 
     public void setUser(User user) {
@@ -125,23 +86,16 @@ public class ImageModel {
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (originalFileName != null ? !originalFileName.equals(that.originalFileName) : that.originalFileName != null)
-            return false;
-        if (size != null ? !size.equals(that.size) : that.size != null) return false;
-        if (contentType != null ? !contentType.equals(that.contentType) : that.contentType != null) return false;
-        if (url != null ? !url.equals(that.url) : that.url != null) return false;
-        return Arrays.equals(bytes, that.bytes);
+        if (imagePath != null ? !imagePath.equals(that.imagePath) : that.imagePath != null) return false;
+        return url != null ? url.equals(that.url) : that.url == null;
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (originalFileName != null ? originalFileName.hashCode() : 0);
-        result = 31 * result + (size != null ? size.hashCode() : 0);
-        result = 31 * result + (contentType != null ? contentType.hashCode() : 0);
+        result = 31 * result + (imagePath != null ? imagePath.hashCode() : 0);
         result = 31 * result + (url != null ? url.hashCode() : 0);
-        result = 31 * result + Arrays.hashCode(bytes);
         return result;
     }
 }

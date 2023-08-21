@@ -9,9 +9,14 @@ import ru.beetlerat.socialnetwork.dao.UserDAO;
 import ru.beetlerat.socialnetwork.models.ImageModel;
 import ru.beetlerat.socialnetwork.models.User;
 import ru.beetlerat.socialnetwork.repositories.ImageRepository;
+import ru.beetlerat.socialnetwork.utill.exceptions.files.CanNotReadFileException;
 import ru.beetlerat.socialnetwork.utill.exceptions.files.FileNotFoundInDatabaseException;
+import ru.beetlerat.socialnetwork.utill.exceptions.files.FileNotFoundInDiskException;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -20,25 +25,54 @@ import java.util.UUID;
 public class FileServiceImplementation implements ImageService {
     private final ImageRepository imageRepository;
     private final UserDAO userDAO;
+
     @Value("${application.files.imageExtensions}")
     private final List<String> imageExtensions = new ArrayList<>();
+    @Value("${application.files.imagePath}")
+    private String uploadPath;
 
     private ImageModel image;
+    private File removeImage;
 
     @Autowired
-    public FileServiceImplementation(ImageRepository imageRepository, UserDAO userDAO) {
+    public FileServiceImplementation(
+            ImageRepository imageRepository, UserDAO userDAO) {
         this.imageRepository = imageRepository;
         this.userDAO = userDAO;
     }
 
     @Override
     public byte[] getImageByName(String name) {
-        image = imageRepository.findByOriginalFileName(name);
+        String imagePath = getImagePathFromDatabase(name);
+
+        return getBytesFromFile(imagePath);
+    }
+
+    private String getImagePathFromDatabase(String name) {
+        image = imageRepository.findByName(name);
         if (image == null) {
             throw new FileNotFoundInDatabaseException();
         }
 
-        return image.getBytes();
+        return image.getImagePath();
+    }
+
+    private byte[] getBytesFromFile(String imagePath) {
+        File imageFile = new File(imagePath);
+
+        return getBytesFromFile(imageFile);
+    }
+
+    private byte[] getBytesFromFile(File imageFile) {
+        if (!imageFile.exists()) {
+            throw new FileNotFoundInDiskException();
+        }
+
+        try {
+            return Files.readAllBytes(Path.of(imageFile.getPath()));
+        } catch (IOException e) {
+            throw new CanNotReadFileException();
+        }
     }
 
     @Override
@@ -49,9 +83,12 @@ public class FileServiceImplementation implements ImageService {
 
         image = getImageModelFromUser(user);
 
-        if (tryToFillImageFromFile(photoFile) == false) {
+        fillImageFromFile(photoFile);
+
+        if (!createFileByPathWasSuccessful(photoFile, image.getImagePath())) {
             return "";
         }
+
         String imgURL = createURLForImage();
         setURLToUserAndImage(imgURL, user);
 
@@ -60,14 +97,33 @@ public class FileServiceImplementation implements ImageService {
         return imgURL;
     }
 
-    private boolean isInputDataCorrect(User user, MultipartFile photoFile) {
+    private boolean isInputDataCorrect(
+            User user, MultipartFile photoFile) {
         if (photoFile == null || photoFile.isEmpty() || user == null) {
+            return false;
+        }
+
+        if (!isUploadPathCorrect()) {
             return false;
         }
 
         String fileExtension = getFileExtension(photoFile);
 
         return imageExtensions.contains(fileExtension);
+    }
+
+    private boolean isUploadPathCorrect() {
+        File uploadDirectory = new File(uploadPath);
+
+        if (!uploadDirectory.isDirectory()) {
+            return false;
+        }
+
+        if (!uploadDirectory.exists()) {
+            uploadDirectory.mkdir();
+        }
+
+        return true;
     }
 
     private String getFileExtension(MultipartFile file) {
@@ -87,32 +143,38 @@ public class FileServiceImplementation implements ImageService {
         if (photo == null) {
             photo = new ImageModel();
             photo.setUser(user);
+        } else {
+            removeImage = new File(photo.getImagePath());
         }
 
         return photo;
     }
 
-    private boolean tryToFillImageFromFile(MultipartFile photoFile) {
-        try {
-            image.setBytes(photoFile.getBytes());
-        } catch (IOException e) {
-            System.out.println(e);
+    private void fillImageFromFile(MultipartFile photoFile) {
+        String fileName = UUID.randomUUID() + photoFile.getOriginalFilename();
+        image.setImagePath(uploadPath + fileName);
+        image.setName(fileName);
+    }
 
+    private boolean createFileByPathWasSuccessful(
+            MultipartFile photoFile, String path) {
+        try {
+            photoFile.transferTo(new File(path));
+        } catch (IOException e) {
+            System.out.println("Ошибка сохранения файла: " + e);
             return false;
         }
-
-        image.setContentType(photoFile.getContentType());
-        image.setName(photoFile.getName());
-        image.setOriginalFileName(UUID.randomUUID() + photoFile.getOriginalFilename());
-        image.setSize(photoFile.getSize());
 
         return true;
     }
 
     private String createURLForImage() {
-        String serverBaseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+        String serverBaseURL =
+                ServletUriComponentsBuilder
+                        .fromCurrentContextPath()
+                        .toUriString();
 
-        return serverBaseURL + "/img/" + image.getOriginalFileName();
+        return serverBaseURL + "/img/" + image.getName();
     }
 
     private void setURLToUserAndImage(String imgURL, User user) {
@@ -123,5 +185,8 @@ public class FileServiceImplementation implements ImageService {
     private void updateDatabase(User user) {
         imageRepository.save(image);
         userDAO.update(user.getUserID(), user);
+        if (removeImage.exists()) {
+            removeImage.delete();
+        }
     }
 }

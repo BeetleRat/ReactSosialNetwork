@@ -78,7 +78,7 @@ public class ProfileController {
         String imgURL = imageService.savePhotoAndGetURL(user, photo);
 
         if (imgURL.equals("")) {
-            return ResponseEntity.ok(ResponseToFront.FromExceptionMessage("Ошибка сохранения в БД."));
+            return ResponseEntity.ok(ResponseToFront.FromExceptionMessage("Ошибка сохранения изображения."));
         }
 
         return ResponseEntity.ok(new ProfilePhotoURLResponse(imgURL));
