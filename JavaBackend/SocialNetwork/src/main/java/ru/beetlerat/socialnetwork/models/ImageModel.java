@@ -1,6 +1,5 @@
 package ru.beetlerat.socialnetwork.models;
 
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 

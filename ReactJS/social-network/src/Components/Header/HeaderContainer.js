@@ -10,7 +10,7 @@ import {
 } from "../../Redux/Selectors/AuthSelectors";
 import {getCurrentTaskID, getTasks} from "../../Redux/Selectors/ProgressSelectors";
 
-class HeaderContainer extends React.Component {
+class HeaderContainer extends React.PureComponent {
 
     render() {
         return (<Header userID={this.props.userID} email={this.props.email} username={this.props.username}
@@ -22,7 +22,7 @@ const mapStateToProps = (state) => {
     return {
         userID: getAuthUsersID(state),
         email: getAuthUsersEmail(state),
-        username:getAuthUsersUsername(state),
+        username: getAuthUsersUsername(state),
         isAuth: getIsAuth(state),
         token: getAccessToken(state),
         tasks: getTasks(state),

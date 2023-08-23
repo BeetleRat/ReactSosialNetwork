@@ -1,16 +1,17 @@
 import './App.css';
 import Navigation from "./Components/Navigation/Navigation";
 import Header from "./Components/Header/HeaderContainer";
-import Login from "./Components/Login/LoginContainer";
 import {withSuspense} from "./HOC/WithSuspense";
-import {BrowserRouter, HashRouter, Route} from "react-router-dom";
+import {HashRouter, Route, Switch} from "react-router-dom";
 import {Provider} from "react-redux";
 import store from "./Redux/store";
 import React from "react";
+import NotFoundPage from "./Components/CommonComponents/NotFoundPage/NotFoundPage";
 
-const MyProfile = React.lazy(() => import("./Components/MyProfile/ProfileInfoContainer"));
+const MyProfile = React.lazy(() => import("./Components/ProfileInfo/ProfileInfoContainer"));
 const Dialogs = React.lazy(() => import("./Components/Dialog/DialogContainer"));
 const Users = React.lazy(() => import("./Components/Users/UsersContainer"));
+const Login = React.lazy(() => import("./Components/Login/LoginContainer"));
 
 const AppComponent = (props) => {
     return (
@@ -18,14 +19,18 @@ const AppComponent = (props) => {
             <Header/>
             <Navigation/>
             <div className='content-style'>
-                <Route path="/profile/:userID?"
-                       render={withSuspense(MyProfile)}/>
-                <Route path="/dialogs"
-                       render={withSuspense(Dialogs)}/>
-                <Route path="/users"
-                       render={withSuspense(Users)}/>
-                <Route path="/login"
-                       render={() => <Login/>}/>
+                <Switch>
+                    <Route exact path="/profile/:userID?"
+                           render={withSuspense(MyProfile)}/>
+                    <Route exact path="/dialogs"
+                           render={withSuspense(Dialogs)}/>
+                    <Route exact path="/users"
+                           render={withSuspense(Users)}/>
+                    <Route exact path="/login"
+                           render={withSuspense(Login)}/>
+                    <Route path="/*"
+                           render={() => <NotFoundPage/>}/>
+                </Switch>
             </div>
         </div>
     );
@@ -40,4 +45,5 @@ const App = (props) => {
         </HashRouter>
     );
 }
+
 export default App;

@@ -1,10 +1,10 @@
 import OneSpace from "./OneSpace";
 
-const Space = (props) => {
+const Space = ({count}) => {
 
     let indexes =
         Array.from(
-            {length: props.count},
+            {length: count},
             (_, index) => index + 1
         );
 

@@ -37,7 +37,6 @@ const Header = (props) => {
                     })}
                     </tbody>
                 </table>
-
             </header>
         </div>
     );

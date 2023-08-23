@@ -1,6 +1,6 @@
 import styleClass from "./User.module.css"
 import {NavLink} from "react-router-dom";
-import defaultAvatar from "./../../../assets/images/defaultAvatar.png"
+import defaultAvatar from "./../../../Assets/Images/defaultAvatar.png"
 
 const User = (props) => {
     const toggleFollowing = (props) => {
@@ -23,10 +23,14 @@ const User = (props) => {
                 Статус: {props.status}
             </div>
             <div>
-                {props.isAuth ? <button onClick={() => toggleFollowing(props)}
-                                        disabled={props.fetchingUsers.some(id => id === props.id)}>{props.isFollow ? "Unfollow" : "Follow"}</button> :
-                    <br/>}
-
+                {
+                    props.isAuth
+                        ? <button onClick={() => toggleFollowing(props)}
+                                  disabled={props.fetchingUsers.some(id => id === props.id)}>
+                            {props.isFollow ? "Unfollow" : "Follow"}
+                        </button>
+                        : <br/>
+                }
             </div>
             <hr/>
         </div>

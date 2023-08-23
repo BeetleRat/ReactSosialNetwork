@@ -1,16 +1,14 @@
 import styleClass from "./PageNumbers.module.css"
+import classNames from "classnames"
 
-const PageRow = (props) => {
+const PageRow = ({currentPage, pages, changePage}) => {
     return (
         <span>
             {
-                props.pages.map((page) =>
+                pages.map((page) =>
                     <span key={page}
-                          onClick={() => props.changePage(page)}
-                          className={
-                              props.currentPage === page
-                                  ? styleClass.selectedPage
-                                  : styleClass.page}
+                          onClick={() => changePage(page)}
+                          className={classNames(styleClass.page, {[styleClass.selectedPage]: currentPage === page})}
                     >
                         {page}
                     </span>)
@@ -19,4 +17,5 @@ const PageRow = (props) => {
 
     );
 }
+
 export default PageRow;

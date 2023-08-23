@@ -43,6 +43,7 @@ public class SecurityUsersController {
         // Упаковка в модель списка БД с ключем Books
         model.addAttribute("Users", userListService.getList());
         model.addAttribute("User", new FullUserInfoDTO());
+
         return "security/create";
     }
 
@@ -60,8 +61,8 @@ public class SecurityUsersController {
 
     @PostMapping("/create")
     public String CreateUser(@ModelAttribute("User") FullUserInfoDTO user) {
-
         usersCRUDService.save(convertToUser(user), user.getUsername(), user.getPassword(), UserRoles.USER);
+
         return "redirect:/security/users/create";
     }
 

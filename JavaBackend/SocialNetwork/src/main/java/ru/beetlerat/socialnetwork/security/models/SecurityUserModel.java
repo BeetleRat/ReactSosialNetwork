@@ -36,18 +36,23 @@ public class SecurityUserModel {
     public int getId() {
         return id;
     }
+
     public String getUsername() {
         return username;
     }
+
     public String getPassword() {
         return password;
     }
+
     public UserRoles getUserRole() {
         return userRole;
     }
+
     public List<SecurityUserPermissionModel> getUserPermissions() {
         return userPermissions;
     }
+
     // Проверка есть ли у пользователя данное разрешение
     public boolean hasPermissions(UserPermissions permission) {
         for (SecurityUserPermissionModel permissionModel : userPermissions) {
@@ -66,18 +71,23 @@ public class SecurityUserModel {
     public void setId(int id) {
         this.id = id;
     }
+
     public void setUsername(String username) {
         this.username = username;
     }
+
     public void setPassword(String password) {
         this.password = password;
     }
+
     public void setUserRole(UserRoles userRole) {
         this.userRole = userRole;
     }
+
     public void setUserPermissions(List<SecurityUserPermissionModel> userPermissions) {
         this.userPermissions = userPermissions;
     }
+
     // Добавление разрешений пользователю
     public void addUserPermissions(UserPermissions... permissions) {
         if (this.userPermissions == null) {
@@ -93,6 +103,7 @@ public class SecurityUserModel {
             }
         }
     }
+
     // Удаление у пользователя разрешений
     public void removeUserPermissions(UserPermissions... permissions) {
         for (UserPermissions onePermission : permissions) {
@@ -104,6 +115,7 @@ public class SecurityUserModel {
             }
         }
     }
+
     public void setUser(User user) {
         this.user = user;
     }
@@ -121,6 +133,7 @@ public class SecurityUserModel {
         if (!Objects.equals(password, that.password)) return false;
         return userRole == that.userRole;
     }
+
     @Override
     public int hashCode() {
         int result = id;

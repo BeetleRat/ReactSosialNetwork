@@ -1,9 +1,9 @@
 import styleClass from "./UserName.module.css"
 
-const UserName = (props) =>{
+const UserName = ({name}) =>{
     return(
         <div className={styleClass.userNameStyle}>
-            {props.name}
+            {name}
         </div>
     );
 }

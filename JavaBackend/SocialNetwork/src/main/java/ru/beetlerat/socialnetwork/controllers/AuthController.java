@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.beetlerat.socialnetwork.dto.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.user.authorized.*;
@@ -13,9 +14,12 @@ import ru.beetlerat.socialnetwork.security.JWT.JwtUtils;
 import ru.beetlerat.socialnetwork.security.types.SecurityUserDetails;
 import ru.beetlerat.socialnetwork.services.users.AuthUserService;
 import ru.beetlerat.socialnetwork.services.users.FindUserService;
+import ru.beetlerat.socialnetwork.utill.exceptions.NotValidException;
 import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenNotFoundException;
 import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenRefreshedException;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.NoLoginUserException;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -23,7 +27,6 @@ public class AuthController {
     private final AuthUserService authService;
     private final FindUserService findUserService;
     private final JwtUtils jwtUtils;
-
 
     @Autowired
     public AuthController(AuthUserService authService, FindUserService findUserService, JwtUtils jwtUtils) {
@@ -33,7 +36,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<? extends ResponseToFront> loginUser(@RequestBody AuthorizationUserInfoDTO authRequest) {
+    public ResponseEntity<? extends ResponseToFront> loginUser(@RequestBody @Valid AuthorizationUserInfoDTO authRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()
+                || authRequest.equals(new AuthorizationUserInfoDTO())) {
+            throw new NotValidException("Authorization user info is not correct");
+        }
+
         try {
             authService.setAuthentication(
                     new UsernamePasswordAuthenticationToken(
@@ -60,7 +68,6 @@ public class AuthController {
                 )
         );
     }
-
 
     @DeleteMapping("/login")
     public ResponseEntity logoutUser() {

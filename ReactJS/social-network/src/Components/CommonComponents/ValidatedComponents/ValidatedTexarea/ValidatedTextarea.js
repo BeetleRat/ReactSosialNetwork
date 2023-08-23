@@ -1,9 +1,10 @@
 import styleClass from "./ValidatedTextarea.module.css"
+import classNames from "classnames"
 
 const ValidatedTextarea = ({input, meta, ...props}) => {
     let isValidationFailed = meta.touched && meta.error;
     return (
-        <div className={styleClass.formControl + " " + (isValidationFailed ? styleClass.error : "")}>
+        <div className={classNames(styleClass.formControl, {[styleClass.error]: isValidationFailed})}>
             <div>
                 <textarea  {...input} {...props}/>
             </div>

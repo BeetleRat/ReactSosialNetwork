@@ -1,13 +1,13 @@
 import Login from "./Login";
 import {connect} from "react-redux";
-import {login, logout} from "../../Redux/Redusers/AurhReducer";
+import {login, logout} from "../../Redux/Reducers/AurhReducer";
 import {
     getAuthExceptionMessage,
     getAuthUsersEmail,
     getAuthUsersUsername,
     getIsAuth
 } from "../../Redux/Selectors/AuthSelectors";
-import {setFollowedUsers} from "../../Redux/Redusers/UserReducer";
+import {setFollowedUsers} from "../../Redux/Reducers/UserReducer";
 
 const mapStateToProps = (state) => {
     return {

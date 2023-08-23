@@ -1,11 +1,11 @@
 import {Field, reduxForm} from "redux-form";
 import ValidatedTextarea from "../../CommonComponents/ValidatedComponents/ValidatedTexarea/ValidatedTextarea";
-import {maxLength, requiredField} from "../../../utills/validators/validators";
+import {maxLength, requiredField} from "../../../Utills/Validators/validators";
 
-let maxLength15=maxLength(15);
+let maxLength15 = maxLength(15);
 
-const DialogForm=(props)=>{
-    return(
+const DialogForm = (props) => {
+    return (
         <form onSubmit={props.handleSubmit}>
             <div>
                 <Field id="newDialogMessage" name="newDialogMessage" placeholder='Ответ' component={ValidatedTextarea}
@@ -15,7 +15,7 @@ const DialogForm=(props)=>{
                 <button id="addNewMessage" name="addNewMessage">Ответить</button>
             </div>
         </form>
-        );
+    );
 }
 
-export default reduxForm({form:'dialog'})(DialogForm)
+export default reduxForm({form: 'dialog'})(DialogForm)

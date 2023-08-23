@@ -1,7 +1,11 @@
 package ru.beetlerat.socialnetwork.dto.user.authorized;
 
+import javax.validation.constraints.NotNull;
+
 public class AuthorizationUserInfoDTO {
+    @NotNull(message = "Username token should not be empty")
     private String username;
+    @NotNull(message = "Password token should not be empty")
     private String password;
     private boolean rememberMe;
 
@@ -41,5 +45,25 @@ public class AuthorizationUserInfoDTO {
 
     public void setRememberMe(boolean rememberMe) {
         this.rememberMe = rememberMe;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AuthorizationUserInfoDTO that = (AuthorizationUserInfoDTO) o;
+
+        if (rememberMe != that.rememberMe) return false;
+        if (username != null ? !username.equals(that.username) : that.username != null) return false;
+        return password != null ? password.equals(that.password) : that.password == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = username != null ? username.hashCode() : 0;
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (rememberMe ? 1 : 0);
+        return result;
     }
 }

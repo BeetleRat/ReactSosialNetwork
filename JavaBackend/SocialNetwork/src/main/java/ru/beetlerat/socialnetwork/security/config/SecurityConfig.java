@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.beetlerat.socialnetwork.security.filters.JwtRequestFilter;
-import ru.beetlerat.socialnetwork.security.service.SSSecurityUserService;
+import ru.beetlerat.socialnetwork.security.service.UserDetailsServiceImplementation;
 
 @EnableWebSecurity
 @Configuration
@@ -25,12 +25,12 @@ import ru.beetlerat.socialnetwork.security.service.SSSecurityUserService;
 @EnableMethodSecurity
 public class SecurityConfig {
     // Доступ к БД
-    private final SSSecurityUserService securityUsersService;
+    private final UserDetailsServiceImplementation securityUsersService;
     // Фильтр авторизующий запрос по токену
     private final JwtRequestFilter jwtRequestFilter;
 
     @Autowired
-    public SecurityConfig(SSSecurityUserService securityUsersService, JwtRequestFilter jwtRequestFilter) {
+    public SecurityConfig(UserDetailsServiceImplementation securityUsersService, JwtRequestFilter jwtRequestFilter) {
         this.securityUsersService = securityUsersService;
         this.jwtRequestFilter = jwtRequestFilter;
     }
@@ -38,7 +38,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                // Настройка передачи токена в запросе
                 .csrf().disable()
                 .cors().and()
                 .authorizeHttpRequests(auth -> {// Лямбда выражение описывающие права доступа к страницам сервиса

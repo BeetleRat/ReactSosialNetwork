@@ -5,32 +5,32 @@ let Navigation = (props) => {
     return (
         <div className={styleClass.navStyle}>
             <div>
-                <NavLink to='/profile' className={(isActive) => isActive ? styleClass.active : styleClass.navStyle}>
+                <NavLink to='/profile' activeClassName={styleClass.active}>
                     Профиль
                 </NavLink>
             </div>
             <div>
-                <NavLink to='/users' className={(isActive) => isActive ? styleClass.active : styleClass.navStyle}>
+                <NavLink to='/users' activeClassName={styleClass.active}>
                     Пользователи
                 </NavLink>
             </div>
             <div>
-                <NavLink to='/dialogs' className={(isActive) => isActive ? styleClass.active : styleClass.navStyle}>
+                <NavLink to='/dialogs' activeClassName={styleClass.active}>
                     Сообщения
                 </NavLink>
             </div>
             <div>
-                <NavLink to='/news' className={(isActive) => isActive ? styleClass.active : styleClass.navStyle}>
+                <NavLink to='/news' activeClassName={styleClass.active}>
                     Новости
                 </NavLink>
             </div>
             <div>
-                <NavLink to='/music' className={(isActive) => isActive ? styleClass.active : styleClass.navStyle}>
+                <NavLink to='/music' activeClassName={styleClass.active}>
                     Музыка
                 </NavLink>
             </div>
             <div>
-                <NavLink to='/settings' className={(isActive) => isActive ? styleClass.active : styleClass.navStyle}>
+                <NavLink to='/settings' activeClassName={styleClass.active}>
                     Настройки
                 </NavLink>
             </div>

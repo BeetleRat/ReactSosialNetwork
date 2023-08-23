@@ -1,10 +1,11 @@
 import styleClass from "./ValidateInput.module.css"
+import classNames from "classnames"
 
-
-const ValidatedTextarea = ({input, meta, ...props}) => {
+const ValidatedInput = ({input, meta, ...props}) => {
     let isValidationFailed = meta.touched && meta.error;
+
     return (
-        <div className={styleClass.formControl + " " + (isValidationFailed ? styleClass.error : "")}>
+        <div className={classNames(styleClass.formControl,{[styleClass.error]:isValidationFailed})}>
             <div>
                 <input {...input} {...props}/>
             </div>
@@ -13,4 +14,4 @@ const ValidatedTextarea = ({input, meta, ...props}) => {
     );
 }
 
-export default ValidatedTextarea;
+export default ValidatedInput;

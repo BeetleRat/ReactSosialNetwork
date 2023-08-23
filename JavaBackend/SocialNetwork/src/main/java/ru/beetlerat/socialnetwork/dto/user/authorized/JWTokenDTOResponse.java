@@ -17,7 +17,7 @@ public class JWTokenDTOResponse extends ResponseToFront {
     }
 
     public static JWTokenDTOResponse FromAccessAndRefreshToken(String accessToken, String refreshToken) {
-        return new JWTokenDTOResponse(accessToken,refreshToken);
+        return new JWTokenDTOResponse(accessToken, refreshToken);
     }
 
     public String getRefreshToken() {

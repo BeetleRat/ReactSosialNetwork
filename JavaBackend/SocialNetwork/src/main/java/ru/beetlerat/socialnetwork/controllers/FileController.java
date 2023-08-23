@@ -46,5 +46,4 @@ public class FileController {
             CanNotReadFileException exception) {
         return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
-
 }

@@ -6,7 +6,7 @@ export const withAuthRedirect = (Component) => {
     // Создаваемый контейнерный компонент
     class RedirectComponent extends React.Component {
         render() {
-            if(!this.props.isAuth){
+            if (!this.props.isAuth) {
                 return (<Redirect to='/login'/>);
             }
             return <Component {...this.props}/>;
@@ -21,5 +21,5 @@ export const withAuthRedirect = (Component) => {
 
 
     // Возвращаем созданный
-    return connect(MapStateToProps, {})(RedirectComponent);;
+    return connect(MapStateToProps, {})(RedirectComponent);
 }

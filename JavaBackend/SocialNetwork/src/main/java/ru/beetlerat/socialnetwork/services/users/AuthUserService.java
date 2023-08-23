@@ -6,6 +6,7 @@ import ru.beetlerat.socialnetwork.models.User;
 
 public interface AuthUserService {
     User getCurrentLoginUser();
+
     void setAuthentication(UsernamePasswordAuthenticationToken token) throws BadCredentialsException;
 
     boolean isUserLogin();

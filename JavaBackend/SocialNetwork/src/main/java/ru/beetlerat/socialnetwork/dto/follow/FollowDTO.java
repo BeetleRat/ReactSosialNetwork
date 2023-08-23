@@ -1,7 +1,11 @@
 package ru.beetlerat.socialnetwork.dto.follow;
 
+import javax.validation.constraints.Min;
+
 public class FollowDTO {
+    @Min(value = 1, message = "User ID should be bigger then 0")
     private int userID;
+    @Min(value = 1, message = "Followed User ID should be bigger then 0")
     private int followedUserID;
     private boolean isFollow;
 
@@ -37,5 +41,25 @@ public class FollowDTO {
 
     public void setFollow(boolean follow) {
         isFollow = follow;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FollowDTO followDTO = (FollowDTO) o;
+
+        if (userID != followDTO.userID) return false;
+        if (followedUserID != followDTO.followedUserID) return false;
+        return isFollow == followDTO.isFollow;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = userID;
+        result = 31 * result + followedUserID;
+        result = 31 * result + (isFollow ? 1 : 0);
+        return result;
     }
 }

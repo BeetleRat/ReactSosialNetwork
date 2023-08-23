@@ -4,7 +4,7 @@ import {
     setCurrentPage,
     toggleFetchingUser,
     unfollowUser
-} from "../../Redux/Redusers/UserReducer";
+} from "../../Redux/Reducers/UserReducer";
 import React from "react";
 import Users from "./Users";
 import Preloader from "../CommonComponents/Preloader/Preloader";
@@ -20,19 +20,15 @@ import {getIsAuth, getAuthUsersID} from "../../Redux/Selectors/AuthSelectors";
 import {compose} from "redux";
 import {withAuthRedirect} from "../../HOC/WithAuthRedirect";
 
-// Классовая компонента, отвечающая за взаимодействие с REST сервисом_______________________
-class UsersContainer extends React.Component {
+class UsersContainer extends React.PureComponent {
 
     // Метод жизненного цикла
     // вызываемый при вставке классового компонента в общую разметку
     // данный метод выполняется 1 раз.
     componentDidMount() {
-        // Вызов метода взаимодействия с сервером
         this.GetUsersFromServer(this.props.currentPage - 1);
     }
 
-    // Метод взаимодействия с сервером
-    // Получить список пользователей со страницы page
     GetUsersFromServer(page) {
         this.props.getUsersFromServer(page, this.props.pageSize);
     };
@@ -50,12 +46,11 @@ class UsersContainer extends React.Component {
     // Поскольку данная компонента тоже является контейнерной,
     // то в данном методе возвращается презентационная компонента
     render() {
-
         return (
             <div>
                 {
                     // Отобразить Preloader, если нужно
-                    this.props.isLoading ? <Preloader/> : ""
+                    this.props.isLoading && <Preloader/>
                 }
                 <Users users={this.props.users} fetchingUsers={this.props.fetchingUsers}
                        totalUsers={this.props.totalUsersCount}
@@ -67,12 +62,11 @@ class UsersContainer extends React.Component {
             </div>
         );
     };
-};
-// Конец классовой компоненты___________________________________________________________
+}
+
 
 const MapStateToProps = (state) => {
     return {
-
         users: getUsers(state),
         fetchingUsers: getFetchingUsers(state),
         pageSize: getPageSize(state),

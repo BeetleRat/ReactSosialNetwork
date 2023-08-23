@@ -42,6 +42,11 @@ public class UserServiceImplementation implements UserListService, UserFollowSer
     }
 
     @Override
+    public int getDefaultPageSize() {
+        return userDAO.getPageSize();
+    }
+
+    @Override
     public Set<User> getUsersByIds(Set<Integer> ids) {
         return userDAO.getUsersByIds(ids);
     }

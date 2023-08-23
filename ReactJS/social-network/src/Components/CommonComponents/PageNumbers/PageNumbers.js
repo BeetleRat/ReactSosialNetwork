@@ -18,8 +18,7 @@ const PageNumbers = (props) => {
 
         return (
             <div>
-                <PageRow changePage={props.changePage} currentPage={props.currentPage}
-                         pages={pages}/>
+                <PageRow currentPage={props.currentPage} pages={pages} changePage={props.changePage}/>
             </div>
         );
     }

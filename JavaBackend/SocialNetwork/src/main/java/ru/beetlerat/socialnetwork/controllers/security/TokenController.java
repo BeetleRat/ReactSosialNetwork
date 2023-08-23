@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.beetlerat.socialnetwork.dto.user.authorized.AuthorizationRefreshTokenDTO;
 import ru.beetlerat.socialnetwork.dto.user.authorized.AuthorizationUserInfoDTO;
@@ -16,8 +17,11 @@ import ru.beetlerat.socialnetwork.security.types.SecurityUserDetails;
 import ru.beetlerat.socialnetwork.services.refreshtoken.RefreshTokenService;
 import ru.beetlerat.socialnetwork.services.users.AuthUserService;
 import ru.beetlerat.socialnetwork.services.users.FindUserService;
+import ru.beetlerat.socialnetwork.utill.exceptions.NotValidException;
 import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenNotFoundException;
 import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenRefreshedException;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/security/token")
@@ -36,7 +40,12 @@ public class TokenController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends ResponseToFront> createJWTToken(@RequestBody AuthorizationUserInfoDTO authRequest) {
+    public ResponseEntity<? extends ResponseToFront> createJWTToken(@RequestBody @Valid AuthorizationUserInfoDTO authRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()
+                || authRequest.equals(new AuthorizationUserInfoDTO())) {
+            throw new NotValidException("Authorization user info is not correct");
+        }
+
         try {
             authService.setAuthentication(
                     new UsernamePasswordAuthenticationToken(
@@ -64,7 +73,12 @@ public class TokenController {
     }
 
     @PostMapping("/refreshtoken")
-    public ResponseEntity<? extends ResponseToFront> refreshToken(@RequestBody AuthorizationRefreshTokenDTO request) {
+    public ResponseEntity<? extends ResponseToFront> refreshToken(@RequestBody @Valid AuthorizationRefreshTokenDTO request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()
+                || request.equals(new AuthorizationRefreshTokenDTO())) {
+            throw new NotValidException("Authorization user info is not correct");
+        }
+
         String requestRefreshToken = request.getRefreshToken();
 
         RefreshToken token = refreshTokenService.findToken(requestRefreshToken).orElseThrow(TokenNotFoundException::new);

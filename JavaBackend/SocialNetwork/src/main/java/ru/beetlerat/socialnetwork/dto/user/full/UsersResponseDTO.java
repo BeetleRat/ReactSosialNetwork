@@ -1,25 +1,27 @@
 package ru.beetlerat.socialnetwork.dto.user.full;
 
+import ru.beetlerat.socialnetwork.dto.ResponseToFront;
+
 import java.util.LinkedList;
 import java.util.List;
 
-public class UsersResponseDTO {
+public class UsersResponseDTO extends ResponseToFront {
     private List<UserDTO> users;
     private long totalUsers;
-    private String errors;
 
-    public UsersResponseDTO(){
+    public UsersResponseDTO() {
         users = new LinkedList<UserDTO>();
-        totalUsers=0;
+        totalUsers = 0;
     }
-    private UsersResponseDTO(List<UserDTO> users, long totalUsers, String errors) {
+
+    private UsersResponseDTO(List<UserDTO> users, long totalUsers) {
+        super("", Code.AUTHORIZED_AND_COMPLETED.getCode());
         this.users = users;
         this.totalUsers = totalUsers;
-        this.errors = errors;
     }
 
-    public static UsersResponseDTO FromUsersTotalUsersAndErrors(List<UserDTO> users, long totalUsers, String errors){
-        return new UsersResponseDTO( users, totalUsers, errors);
+    public static UsersResponseDTO FromUsersAndTotalUsers(List<UserDTO> users, long totalUsers) {
+        return new UsersResponseDTO(users, totalUsers);
     }
 
     public void setUsers(List<UserDTO> users) {
@@ -30,19 +32,11 @@ public class UsersResponseDTO {
         this.totalUsers = totalUsers;
     }
 
-    public void setErrors(String errors) {
-        this.errors = errors;
-    }
-
     public List<UserDTO> getUsers() {
         return users;
     }
 
     public long getTotalUsers() {
         return totalUsers;
-    }
-
-    public String getErrors() {
-        return errors;
     }
 }

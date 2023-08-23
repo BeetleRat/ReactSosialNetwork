@@ -30,9 +30,9 @@ public class UserDAO {
     @PersistenceContext
     private EntityManager entityManager;
     private final AuthenticationManager authenticationManager;
-    private PasswordEncoder passwordEncoder;
-    private int pageSize = 5;
-    private int maxCount = 100;
+    private final PasswordEncoder passwordEncoder;
+    private int pageSize;
+    private int maxCount;
 
     @Autowired
     public UserDAO(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
@@ -51,6 +51,10 @@ public class UserDAO {
         this.pageSize = pageSize;
     }
 
+    public int getPageSize() {
+        return pageSize;
+    }
+
     public List<User> findAll() {
         String HQL = "select u from User as u";
         if (isUserLogin()) {
@@ -58,7 +62,6 @@ public class UserDAO {
         }
         return entityManager.createQuery(HQL, User.class).getResultList();
     }
-
 
     public List<User> getPaginationData(int page, int count) {
         int startIndex = page * pageSize;
@@ -73,7 +76,6 @@ public class UserDAO {
 
         return userList.subList(startIndex, Math.min(endIndex, maxIndex));
     }
-
 
     public Set<User> getUsersByIds(Set<Integer> ids) {
         String HQL = "select u.userID from User as u where ";
@@ -90,7 +92,6 @@ public class UserDAO {
         return new HashSet<>(users);
     }
 
-
     public Set<Integer> getIdsFollowedUsers(User user) {
         Set<User> followedUsers = user.getFollowedUsers();
         Set<Integer> ids = new HashSet<>();
@@ -101,7 +102,6 @@ public class UserDAO {
         return ids;
     }
 
-
     public Set<Integer> getIdsUsersWhoFollowedMe(User user) {
         Set<User> followedUsers = user.getUsersWhoFollowedMe();
         Set<Integer> ids = new HashSet<>();
@@ -111,7 +111,6 @@ public class UserDAO {
 
         return ids;
     }
-
 
     public User getByID(int id) {
         User user = entityManager.find(User.class, id);
@@ -188,7 +187,6 @@ public class UserDAO {
         SecurityUserDetails.Logout();
     }
 
-
     @Transactional
     public void save(User newUser, String username, String password, UserRoles role) {
         String HQL = "select u.id from SecurityUserModel as u where u.username = '" + username + "'";
@@ -202,11 +200,12 @@ public class UserDAO {
         securityUserModel.setUsername(username);
         securityUserModel.setPassword(passwordEncoder.encode(password));
         securityUserModel.setUserRole(role);
+
         newUser.setSecuritySettings(securityUserModel);
+
         entityManager.persist(securityUserModel);
         entityManager.persist(newUser);
     }
-
 
     @Transactional
     public void delete(int id) {
@@ -227,11 +226,14 @@ public class UserDAO {
             throw new UserNotFoundException();
         } else {
             updatedUser.setUserID(id);
+
             SecurityUserModel securityUserModel = updatedUser.getSecuritySettings();
             securityUserModel.setUsername(username);
             securityUserModel.setPassword(password);
             securityUserModel.setUserRole(role);
+
             oldUser.setAllFromAnotherUser(updatedUser);
+
             entityManager.merge(oldUser);
         }
     }

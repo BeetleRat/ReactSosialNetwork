@@ -9,7 +9,7 @@ export const requiredField = (value) => {
 export const maxLength = (maxLength) => {
     return (value) => {
         if (value && value.length > maxLength) {
-            return `Максимальная длинна ${maxLength} символов`;;
+            return `Максимальная длинна ${maxLength} символов`;
         }
 
         return undefined;

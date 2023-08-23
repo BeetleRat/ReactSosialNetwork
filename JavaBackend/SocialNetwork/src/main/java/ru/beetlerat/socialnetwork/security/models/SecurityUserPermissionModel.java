@@ -19,7 +19,8 @@ public class SecurityUserPermissionModel {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private SecurityUserModel securityUserModel;
 
-    public SecurityUserPermissionModel(){}
+    public SecurityUserPermissionModel() {
+    }
 
     public SecurityUserPermissionModel(UserPermissions userPermission, SecurityUserModel securityUserModel) {
         this.userPermission = userPermission;
@@ -30,9 +31,11 @@ public class SecurityUserPermissionModel {
     public int getId() {
         return id;
     }
+
     public UserPermissions getUserPermission() {
         return userPermission;
     }
+
     public SecurityUserModel getSecurityUserModel() {
         return securityUserModel;
     }
@@ -41,9 +44,11 @@ public class SecurityUserPermissionModel {
     public void setId(int id) {
         this.id = id;
     }
+
     public void setUserPermission(UserPermissions userPermission) {
         this.userPermission = userPermission;
     }
+
     public void setSecurityUserModel(SecurityUserModel securityUserModel) {
         this.securityUserModel = securityUserModel;
     }

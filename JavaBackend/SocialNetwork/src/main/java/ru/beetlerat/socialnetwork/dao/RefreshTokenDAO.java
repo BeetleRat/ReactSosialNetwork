@@ -19,7 +19,6 @@ public class RefreshTokenDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-
     public Optional<RefreshToken> findByToken(String token) {
         List<RefreshToken> refreshTokenList = entityManager.createQuery("select rt from RefreshToken as rt where rt.token='" + token + "'").getResultList();
         if (refreshTokenList.isEmpty()) {

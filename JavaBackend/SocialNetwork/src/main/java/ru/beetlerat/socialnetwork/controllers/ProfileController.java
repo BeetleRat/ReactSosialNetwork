@@ -2,7 +2,6 @@ package ru.beetlerat.socialnetwork.controllers;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -10,18 +9,21 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.beetlerat.socialnetwork.dto.profile.ProfilePhotoURLResponse;
 import ru.beetlerat.socialnetwork.dto.profile.ProfileStatusDTO;
 import ru.beetlerat.socialnetwork.dto.ResponseToFront;
+import ru.beetlerat.socialnetwork.dto.profile.ProfileStatusResponse;
 import ru.beetlerat.socialnetwork.dto.user.full.UserDTO;
+import ru.beetlerat.socialnetwork.dto.user.full.UserResponseDTO;
 import ru.beetlerat.socialnetwork.models.User;
-import ru.beetlerat.socialnetwork.security.JWT.JwtUtils;
 import ru.beetlerat.socialnetwork.services.files.ImageService;
 import ru.beetlerat.socialnetwork.services.users.AuthUserService;
 import ru.beetlerat.socialnetwork.services.users.StatusService;
 import ru.beetlerat.socialnetwork.services.users.UsersCRUDService;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.NoLoginUserException;
+import ru.beetlerat.socialnetwork.utill.exceptions.user.UserAlreadyCreatedException;
+import ru.beetlerat.socialnetwork.utill.exceptions.user.UserErrorResponse;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.UserNotFoundException;
 import ru.beetlerat.socialnetwork.utill.exceptions.NotValidException;
 
-import java.util.Optional;
+import javax.validation.Valid;
 import java.util.Set;
 
 @RestController
@@ -43,25 +45,54 @@ public class ProfileController {
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<UserDTO> getOneUserFromServerByID(@PathVariable("id") int id) {
-        return ResponseEntity.ok(convertToUserDTO(userCRUDService.getByID(id)));
+    public ResponseEntity<ResponseToFront> getOneUserFromServerByID(@PathVariable("id") int id) {
+        User user = userCRUDService.getByID(id);
+        UserDTO userDTO = convertToUserDTO(user);
+        UserResponseDTO response = UserResponseDTO.FromUserDTO(userDTO);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping
+    public ResponseEntity<ResponseToFront> updateUser(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()
+                || userDTO.equals(new UserDTO())) {
+            throw new NotValidException("Profile data not valid.");
+        }
+
+        int id = userDTO.getUserID();
+
+        User newUser = convertToUser(userDTO);
+
+        userCRUDService.update(id, newUser);
+
+        UserResponseDTO response = getUserResponseDTOByID(id);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/status/{id}")
-    public ResponseEntity<String> getUserStatusFromServerByID(@PathVariable("id") int id) {
-        return ResponseEntity.ok(statusService.getStatus(id));
+    public ResponseEntity<ResponseToFront> getUserStatusFromServerByID(@PathVariable("id") int id) {
+        String status = statusService.getStatus(id);
+        ProfileStatusResponse response = ProfileStatusResponse.FromStatus(status);
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping(path = "/status/{id}")
-    public ResponseEntity<UserDTO> updateUserStatus(@PathVariable("id") int id, @RequestBody ProfileStatusDTO profileStatus, BindingResult bindingResult) {
+    public ResponseEntity<ResponseToFront> updateUserStatus(@PathVariable("id") int id, @RequestBody @Valid ProfileStatusDTO profileStatus, BindingResult bindingResult) {
 
-        if (bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()
+                || profileStatus.equals(new ProfileStatusDTO())) {
             throw new NotValidException("Status not valid.");
         }
 
         statusService.updateStatus(id, profileStatus.getStatus());
 
-        return ResponseEntity.ok(convertToUserDTO(userCRUDService.getByID(id)));
+        UserResponseDTO response = getUserResponseDTOByID(id);
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping(path = "/photo")
@@ -81,11 +112,38 @@ public class ProfileController {
             return ResponseEntity.ok(ResponseToFront.FromExceptionMessage("Ошибка сохранения изображения."));
         }
 
-        return ResponseEntity.ok(new ProfilePhotoURLResponse(imgURL));
+        return ResponseEntity.ok(ProfilePhotoURLResponse.FromImgURL(imgURL));
+    }
+
+    private UserResponseDTO getUserResponseDTOByID(int userID) {
+        User updatedUser = userCRUDService.getByID(userID);
+        UserDTO responseUserDTO = convertToUserDTO(updatedUser);
+
+        return UserResponseDTO.FromUserDTO(responseUserDTO);
     }
 
     // Конвертация из DTO в модели
+    private User convertToUser(UserDTO userDTO) {
+        User userFromDatabase = userCRUDService.getByID(userDTO.getUserID());
+        // Автоматически конвертируем поля совпадающие по названию геттеров/сеттеров
+        User user = modelMapper.map(userDTO, User.class);
 
+        user.setFacebook(userDTO.getContacts().getFacebook());
+        user.setWebsite(userDTO.getContacts().getWebsite());
+        user.setVk(userDTO.getContacts().getVk());
+        user.setTwitter(userDTO.getContacts().getTwitter());
+        user.setInstagram(userDTO.getContacts().getInstagram());
+        user.setYoutube(userDTO.getContacts().getYoutube());
+        user.setGithub(userDTO.getContacts().getGithub());
+        user.setMainlink(userDTO.getContacts().getMainlink());
+
+        user.setSecuritySettings(userFromDatabase.getSecuritySettings());
+        user.setFollowedUsers(userFromDatabase.getFollowedUsers());
+        user.setUsersWhoFollowedMe(userFromDatabase.getUsersWhoFollowedMe());
+        user.setRefreshTokens(userFromDatabase.getRefreshTokens());
+
+        return user;
+    }
 
     // Конвертация из модели в DTO
     private UserDTO convertToUserDTO(User user) {
@@ -114,5 +172,12 @@ public class ProfileController {
     @ExceptionHandler
     private ResponseEntity<ResponseToFront> handleNotValidException(NotValidException exception) {
         return ResponseEntity.ok(ResponseToFront.FromExceptionMessage(exception.getMessage()));
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<UserErrorResponse> handleAlreadyCreatedException(UserAlreadyCreatedException exception) {
+        UserErrorResponse personErrorResponse = new UserErrorResponse(ResponseToFront.Code.EXCEPTION.getCode(), "Person is already exist:" + exception.getMessage());
+
+        return ResponseEntity.ok(personErrorResponse);
     }
 }

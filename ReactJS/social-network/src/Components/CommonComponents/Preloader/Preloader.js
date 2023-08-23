@@ -1,10 +1,10 @@
 import styleClass from "./Preloader.module.css"
-import image from "../../../assets/images/preloder.gif"
+import image from "../../../Assets/Images/preloder.gif"
 
 const Preloader = (props) => {
     return (
         <div className={styleClass.preloaderStyle}>
-            <img src={image}/>
+            <img src={image} alt={"Loading image"}/>
         </div>
     )
 }

@@ -9,9 +9,13 @@ public class ProfilePhotoURLResponse extends ResponseToFront {
 
     }
 
-    public ProfilePhotoURLResponse(String imgURL) {
+    private ProfilePhotoURLResponse(String imgURL) {
         super("", Code.AUTHORIZED_AND_COMPLETED.getCode());
         this.imgURL = imgURL;
+    }
+
+    public static ProfilePhotoURLResponse FromImgURL(String imgURL) {
+        return new ProfilePhotoURLResponse(imgURL);
     }
 
     public String getImgURL() {
