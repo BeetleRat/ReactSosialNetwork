@@ -1,11 +1,12 @@
 package ru.beetlerat.socialnetwork.dto.user.authorized;
 
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.UserModel;
 
 public class ShortUserInfo {
     private int userID;
     private String email;
     private String username;
+    private String imgURL;
 
     public ShortUserInfo() {
 
@@ -21,8 +22,11 @@ public class ShortUserInfo {
         return new ShortUserInfo(userID, email, username);
     }
 
-    public static ShortUserInfo FromUser(User user) {
-        return new ShortUserInfo(user.getUserID(), user.getEmail(), user.getSecuritySettings().getUsername());
+    public static ShortUserInfo FromUser(UserModel user) {
+        ShortUserInfo newUser = new ShortUserInfo(user.getUserID(), user.getEmail(), user.getSecuritySettings().getUsername());
+        newUser.setImgURL(user.getImgURL());
+
+        return newUser;
     }
 
     public int getUserID() {
@@ -37,6 +41,10 @@ public class ShortUserInfo {
         return username;
     }
 
+    public String getImgURL() {
+        return imgURL;
+    }
+
     public void setUserID(int userID) {
         this.userID = userID;
     }
@@ -47,5 +55,9 @@ public class ShortUserInfo {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public void setImgURL(String imgURL) {
+        this.imgURL = imgURL;
     }
 }

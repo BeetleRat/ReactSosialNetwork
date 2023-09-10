@@ -2,8 +2,8 @@ package ru.beetlerat.socialnetwork.dao;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import ru.beetlerat.socialnetwork.models.RefreshToken;
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.RefreshTokenModel;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenNotFoundException;
 
 import javax.persistence.EntityManager;
@@ -19,8 +19,8 @@ public class RefreshTokenDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public Optional<RefreshToken> findByToken(String token) {
-        List<RefreshToken> refreshTokenList = entityManager.createQuery("select rt from RefreshToken as rt where rt.token='" + token + "'").getResultList();
+    public Optional<RefreshTokenModel> findByToken(String token) {
+        List<RefreshTokenModel> refreshTokenList = entityManager.createQuery("select rt from RefreshTokenModel as rt where rt.token='" + token + "'").getResultList();
         if (refreshTokenList.isEmpty()) {
             return Optional.empty();
         }
@@ -29,8 +29,8 @@ public class RefreshTokenDAO {
     }
 
     @Transactional
-    public void deleteByUser(User user) {
-        List<RefreshToken> refreshTokenList = entityManager.createQuery("select rt from RefreshToken as rt where rt.user=" + user).getResultList();
+    public void deleteByUser(UserModel user) {
+        List<RefreshTokenModel> refreshTokenList = entityManager.createQuery("select rt from RefreshTokenModel as rt where rt.user=" + user).getResultList();
         if (refreshTokenList.isEmpty()) {
             throw new TokenNotFoundException();
         } else {
@@ -39,13 +39,13 @@ public class RefreshTokenDAO {
     }
 
     @Transactional
-    public void save(RefreshToken token) {
+    public void save(RefreshTokenModel token) {
         entityManager.persist(token);
     }
 
     @Transactional
-    public void delete(RefreshToken token) {
-        RefreshToken deletedToken = entityManager.find(RefreshToken.class, token.getId());
+    public void delete(RefreshTokenModel token) {
+        RefreshTokenModel deletedToken = entityManager.find(RefreshTokenModel.class, token.getId());
         if (deletedToken == null) {
             throw new TokenNotFoundException();
         } else {
@@ -57,6 +57,6 @@ public class RefreshTokenDAO {
         Timestamp now = Timestamp.valueOf(LocalDateTime.now());
         String HQL = "delete from RefreshToken as rt where rt.expiryDate <= " + now;
 
-        entityManager.createNativeQuery(HQL, RefreshToken.class);
+        entityManager.createNativeQuery(HQL, RefreshTokenModel.class);
     }
 }

@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.beetlerat.socialnetwork.dao.RefreshTokenDAO;
-import ru.beetlerat.socialnetwork.models.RefreshToken;
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.RefreshTokenModel;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.security.JWT.JwtUtils;
 import ru.beetlerat.socialnetwork.security.types.SecurityUserDetails;
 import ru.beetlerat.socialnetwork.utill.exceptions.token.TokenRefreshedException;
@@ -30,10 +30,10 @@ public class RefreshTokenServiceImplementation implements RefreshTokenService {
     }
 
     @Override
-    public RefreshToken createRefreshToken(SecurityUserDetails user) {
+    public RefreshTokenModel createRefreshToken(SecurityUserDetails user) {
         String jwtRefresh = jwtUtils.generateRefreshToken(user);
 
-        RefreshToken newRefreshToken = new RefreshToken();
+        RefreshTokenModel newRefreshToken = new RefreshTokenModel();
         newRefreshToken.setToken(jwtRefresh);
         newRefreshToken.setUser(user.getSecurityUser().getUser());
 
@@ -46,13 +46,13 @@ public class RefreshTokenServiceImplementation implements RefreshTokenService {
     }
 
     @Override
-    public Optional<RefreshToken> findToken(String token) {
+    public Optional<RefreshTokenModel> findToken(String token) {
 
         return refreshTokenDAO.findByToken(token);
     }
 
     @Override
-    public RefreshToken verifyExpiration(RefreshToken token) {
+    public RefreshTokenModel verifyExpiration(RefreshTokenModel token) {
         if (token.getExpiryDate().after(new Date())) {
             refreshTokenDAO.delete(token);
             throw new TokenRefreshedException(token.getToken(), "Refresh token was expired. Please make a new signin request");
@@ -67,7 +67,7 @@ public class RefreshTokenServiceImplementation implements RefreshTokenService {
     }
 
     @Override
-    public void deleteByUser(User user) {
+    public void deleteByUser(UserModel user) {
         refreshTokenDAO.deleteByUser(user);
     }
 }

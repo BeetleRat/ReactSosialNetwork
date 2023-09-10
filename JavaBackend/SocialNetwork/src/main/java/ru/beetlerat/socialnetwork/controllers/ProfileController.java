@@ -12,14 +12,13 @@ import ru.beetlerat.socialnetwork.dto.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.profile.ProfileStatusResponse;
 import ru.beetlerat.socialnetwork.dto.user.full.UserDTO;
 import ru.beetlerat.socialnetwork.dto.user.full.UserResponseDTO;
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.services.files.ImageService;
 import ru.beetlerat.socialnetwork.services.users.AuthUserService;
 import ru.beetlerat.socialnetwork.services.users.StatusService;
 import ru.beetlerat.socialnetwork.services.users.UsersCRUDService;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.NoLoginUserException;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.UserAlreadyCreatedException;
-import ru.beetlerat.socialnetwork.utill.exceptions.user.UserErrorResponse;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.UserNotFoundException;
 import ru.beetlerat.socialnetwork.utill.exceptions.NotValidException;
 
@@ -46,7 +45,7 @@ public class ProfileController {
 
     @GetMapping(path = "/{id}")
     public ResponseEntity<ResponseToFront> getOneUserFromServerByID(@PathVariable("id") int id) {
-        User user = userCRUDService.getByID(id);
+        UserModel user = userCRUDService.getByID(id);
         UserDTO userDTO = convertToUserDTO(user);
         UserResponseDTO response = UserResponseDTO.FromUserDTO(userDTO);
 
@@ -63,7 +62,7 @@ public class ProfileController {
 
         int id = userDTO.getUserID();
 
-        User newUser = convertToUser(userDTO);
+        UserModel newUser = convertToUser(userDTO);
 
         userCRUDService.update(id, newUser);
 
@@ -104,7 +103,7 @@ public class ProfileController {
             return ResponseEntity.ok(ResponseToFront.FromExceptionMessage("Фото не найдено."));
         }
 
-        User user = userCRUDService.getByID(userID);
+        UserModel user = userCRUDService.getByID(userID);
 
         String imgURL = imageService.savePhotoAndGetURL(user, photo);
 
@@ -116,17 +115,17 @@ public class ProfileController {
     }
 
     private UserResponseDTO getUserResponseDTOByID(int userID) {
-        User updatedUser = userCRUDService.getByID(userID);
+        UserModel updatedUser = userCRUDService.getByID(userID);
         UserDTO responseUserDTO = convertToUserDTO(updatedUser);
 
         return UserResponseDTO.FromUserDTO(responseUserDTO);
     }
 
     // Конвертация из DTO в модели
-    private User convertToUser(UserDTO userDTO) {
-        User userFromDatabase = userCRUDService.getByID(userDTO.getUserID());
+    private UserModel convertToUser(UserDTO userDTO) {
+        UserModel userFromDatabase = userCRUDService.getByID(userDTO.getUserID());
         // Автоматически конвертируем поля совпадающие по названию геттеров/сеттеров
-        User user = modelMapper.map(userDTO, User.class);
+        UserModel user = modelMapper.map(userDTO, UserModel.class);
 
         user.setFacebook(userDTO.getContacts().getFacebook());
         user.setWebsite(userDTO.getContacts().getWebsite());
@@ -146,10 +145,10 @@ public class ProfileController {
     }
 
     // Конвертация из модели в DTO
-    private UserDTO convertToUserDTO(User user) {
+    private UserDTO convertToUserDTO(UserModel user) {
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
         if (authService.isUserLogin()) {
-            Set<User> followedUsers = authService.getCurrentLoginUser().getFollowedUsers();
+            Set<UserModel> followedUsers = authService.getCurrentLoginUser().getFollowedUsers();
             boolean isFollowedThisUser = followedUsers.contains(user);
             userDTO.setFollow(isFollowedThisUser);
         } else {
@@ -175,8 +174,8 @@ public class ProfileController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<UserErrorResponse> handleAlreadyCreatedException(UserAlreadyCreatedException exception) {
-        UserErrorResponse personErrorResponse = new UserErrorResponse(ResponseToFront.Code.EXCEPTION.getCode(), "Person is already exist:" + exception.getMessage());
+    private ResponseEntity<ResponseToFront> handleAlreadyCreatedException(UserAlreadyCreatedException exception) {
+        ResponseToFront personErrorResponse = ResponseToFront.FromMessageAndResultCode("Person is already exist:" + exception.getMessage(), ResponseToFront.Code.EXCEPTION.getCode());
 
         return ResponseEntity.ok(personErrorResponse);
     }

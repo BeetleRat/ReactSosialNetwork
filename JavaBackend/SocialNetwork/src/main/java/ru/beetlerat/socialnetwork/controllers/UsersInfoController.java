@@ -3,27 +3,24 @@ package ru.beetlerat.socialnetwork.controllers;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beetlerat.socialnetwork.dto.ResponseToFront;
+import ru.beetlerat.socialnetwork.dto.dbrequest.PaginationUserRequestDTO;
 import ru.beetlerat.socialnetwork.dto.user.full.UserDTO;
-import ru.beetlerat.socialnetwork.dto.user.full.FullUserInfoDTO;
 import ru.beetlerat.socialnetwork.dto.user.full.UsersResponseDTO;
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.dto.users.PaginatedUsersListFromDB;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.security.JWT.JwtUtils;
-import ru.beetlerat.socialnetwork.services.users.AuthUserService;
 import ru.beetlerat.socialnetwork.services.users.FindUserService;
-import ru.beetlerat.socialnetwork.services.users.UserFollowService;
 import ru.beetlerat.socialnetwork.services.users.UserListService;
-import ru.beetlerat.socialnetwork.utill.exceptions.*;
+import ru.beetlerat.socialnetwork.utill.exceptions.NotValidException;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.NoLoginUserException;
-import ru.beetlerat.socialnetwork.utill.exceptions.user.UserAlreadyCreatedException;
-import ru.beetlerat.socialnetwork.utill.exceptions.user.UserErrorResponse;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.UserNotFoundException;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Supplier;
 
 @RestController
 @RequestMapping("/api/users")
@@ -42,67 +39,97 @@ public class UsersInfoController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseToFront> getUsersFromServer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-        Optional<User> requestedUser = getAuthUserFromHeader(authHeader);
-        List<UserDTO> users =
-                userListService.getList().stream()
-                        .map(user -> convertToUserDTO(user, requestedUser))
-                        .toList();
-
-        UsersResponseDTO serverAnswer = UsersResponseDTO.FromUsersAndTotalUsers(users, userListService.getUsersCount());
-
-        return ResponseEntity.ok(serverAnswer);
-    }
-
-    @GetMapping(params = {"page", "count"})
     public ResponseEntity<ResponseToFront> getUsersPaginationFromServer(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @RequestParam("page") int page, @RequestParam("count") int count) {
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "count", required = false) Long count,
+            @RequestParam(name = "pageSize", required = false) Integer pageSize,
+            @RequestParam(name = "term", required = false) String term,
+            @RequestParam(name = "friend", required = false) Boolean friend
+    ) {
 
-        int defaultPageSize = userListService.getDefaultPageSize();
+        Optional<UserModel> requestedUser = getAuthUserFromHeader(authHeader);
 
-        return getUsersPaginationResponse(authHeader, defaultPageSize, page, count);
+        userListService.setPageSize(Objects.requireNonNullElse(pageSize, userListService.getDefaultPageSize()));
+
+        PaginationUserRequestDTO paginationRequest = PaginationUserRequestDTO.FromRequestedUser(requestedUser);
+        paginationRequest.setCount(
+                Objects.requireNonNullElse(
+                        count,
+                        userListService.getTotalUsersCount()
+                ).intValue()
+        );
+        paginationRequest.setPage(Objects.requireNonNullElse(page, 0));
+
+        if (term != null) {
+            return getUsersWithNamePatternPaginationResponse(paginationRequest, term, friend);
+        }
+
+        return getUsersPaginationResponse(paginationRequest, friend);
     }
 
-    @GetMapping(params = {"page", "count", "pageSize"})
-    public ResponseEntity<ResponseToFront> getUsersPaginationFromServer(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @RequestParam("page") int page, @RequestParam("count") int count,
-            @RequestParam("pageSize") int pageSize) {
-
-        return getUsersPaginationResponse(authHeader, pageSize, page, count);
-    }
-
-    private ResponseEntity<ResponseToFront> getUsersPaginationResponse(String authHeader, int pageSize, int page, int count) {
-        Optional<User> requestedUser = getAuthUserFromHeader(authHeader);
-
-        userListService.setPageSize(pageSize);
-
-        List<UserDTO> users =
-                userListService.getPaginationData(page, count).stream()
-                        .map(user -> convertToUserDTO(user, requestedUser))
-                        .toList();
-
-        UsersResponseDTO serverAnswer = UsersResponseDTO.FromUsersAndTotalUsers(users, userListService.getUsersCount());
-
-        return ResponseEntity.ok(serverAnswer);
-    }
-
-    private Optional<User> getAuthUserFromHeader(String authHeader) {
+    private Optional<UserModel> getAuthUserFromHeader(String authHeader) {
         String authUsername = jwtUtils.getAuthUsernameFromHeader(authHeader);
-        User authUser = findUserService.getByUsername(authUsername);
+        UserModel authUser = findUserService.getByUsername(authUsername);
 
         return Optional.ofNullable(authUser);
     }
+
+    private ResponseEntity<ResponseToFront> getUsersPaginationResponse(PaginationUserRequestDTO paginationRequest, Boolean friend) {
+
+        return getUsersWithNamePatternPaginationResponse(paginationRequest, "", friend);
+    }
+
+    private ResponseEntity<ResponseToFront> getUsersWithNamePatternPaginationResponse(PaginationUserRequestDTO paginationRequest, String partOfUserName, Boolean friend) {
+        if (friend == null) {
+            return getUsersWithNamePatternPaginationResponse(paginationRequest, partOfUserName);
+        }
+        if (friend) {
+            return getFriendsWithNamePatternPaginationResponse(paginationRequest, partOfUserName);
+        } else {
+            return getNotFriendsWithNamePatternPaginationResponse(paginationRequest, partOfUserName);
+        }
+    }
+
+    private ResponseEntity<ResponseToFront> getUsersWithNamePatternPaginationResponse(PaginationUserRequestDTO paginationRequest, String partOfUsersName) {
+
+        return createUsersPaginationResponse(paginationRequest, () -> userListService.getPaginationData(paginationRequest, partOfUsersName));
+    }
+
+    private ResponseEntity<ResponseToFront> getNotFriendsWithNamePatternPaginationResponse(PaginationUserRequestDTO paginationRequest, String partOfUsersName) {
+
+        return createUsersPaginationResponse(paginationRequest, () -> userListService.getNotFriendPaginationData(paginationRequest, partOfUsersName));
+    }
+
+    private ResponseEntity<ResponseToFront> getFriendsWithNamePatternPaginationResponse(PaginationUserRequestDTO paginationRequest, String partOfUsersName) {
+
+        return createUsersPaginationResponse(paginationRequest, () -> userListService.getFriendPaginationData(paginationRequest, partOfUsersName));
+    }
+
+    private ResponseEntity<ResponseToFront> createUsersPaginationResponse(PaginationUserRequestDTO paginationRequest, Supplier<PaginatedUsersListFromDB> databaseRequest) {
+
+
+        PaginatedUsersListFromDB paginatedUsersListFromDB = databaseRequest.get();
+
+        List<UserDTO> users =
+                paginatedUsersListFromDB.getPageUserList().stream()
+                        .map(user -> convertToUserDTO(user, paginationRequest.getRequestedUser()))
+                        .toList();
+
+        UsersResponseDTO serverAnswer = UsersResponseDTO.FromUsersAndTotalUsers(users, paginatedUsersListFromDB.getTotalUsers());
+
+        return ResponseEntity.ok(serverAnswer);
+    }
+
 
     // Конвертация из DTO в модели
 
 
     // Конвертация из модели в DTO
-    private UserDTO convertToUserDTO(User user, Optional<User> loginUser) {
+    private UserDTO convertToUserDTO(UserModel user, Optional<UserModel> loginUser) {
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
         if (loginUser.isPresent()) {
-            Set<User> followedUsers = loginUser.get().getFollowedUsers();
+            Set<UserModel> followedUsers = loginUser.get().getFollowedUsers();
             boolean isFollowedThisUser = followedUsers.contains(user);
             userDTO.setFollow(isFollowedThisUser);
         } else {
@@ -114,10 +141,20 @@ public class UsersInfoController {
 
     // Обработчики исключений
     @ExceptionHandler
-    private ResponseEntity<UserErrorResponse> handleNotFoundException(UserNotFoundException exception) {
-        UserErrorResponse personErrorResponse = new UserErrorResponse(ResponseToFront.Code.NOT_FOUND.getCode(), "Person with this id was not found!");
+    private ResponseEntity<ResponseToFront> handleNotFoundException(UserNotFoundException exception) {
+        List<UserDTO> emptyList = new ArrayList<>();
 
-        return ResponseEntity.ok(personErrorResponse);
+        UsersResponseDTO usersResponseDTO = UsersResponseDTO.FromUsersAndTotalUsers(emptyList, 0);
+        usersResponseDTO.setMessage("Person was not found!");
+        usersResponseDTO.setResultCode(ResponseToFront.Code.NOT_FOUND.getCode());
+
+        return ResponseEntity.ok(usersResponseDTO);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ResponseToFront> handleNotValidException(NotValidException exception) {
+        System.out.println(exception);
+        return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler

@@ -6,10 +6,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import ru.beetlerat.socialnetwork.dao.UserDAO;
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.dto.dbrequest.PaginationUserRequestDTO;
+import ru.beetlerat.socialnetwork.dto.users.PaginatedUsersListFromDB;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.security.types.UserRoles;
 
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -21,19 +22,51 @@ public class UserServiceImplementation implements UserListService, UserFollowSer
         this.userDAO = userDAO;
     }
 
+
     @Override
-    public long getUsersCount() {
-        return this.userDAO.getUsersCount();
+    public Long getTotalUsersCount() {
+        return userDAO.getTotalUsersCount();
     }
 
     @Override
-    public List<User> getList() {
-        return userDAO.findAll();
+    public PaginatedUsersListFromDB getList() {
+        PaginationUserRequestDTO paginationUserRequestDTO = new PaginationUserRequestDTO();
+        paginationUserRequestDTO.setCount(userDAO.getTotalUsersCount().intValue());
+        paginationUserRequestDTO.setPage(0);
+
+        userDAO.setPageSize(userDAO.getDefaultPageSize());
+
+        return userDAO.getPaginationData(paginationUserRequestDTO);
     }
 
     @Override
-    public List<User> getPaginationData(int page, int count) {
-        return userDAO.getPaginationData(page, count);
+    public PaginatedUsersListFromDB getFriendPaginationData(PaginationUserRequestDTO paginationUserRequestDTO) {
+        return userDAO.getFriendPaginationData(paginationUserRequestDTO);
+    }
+
+    @Override
+    public PaginatedUsersListFromDB getFriendPaginationData(PaginationUserRequestDTO paginationUserRequestDTO, String partOfUsersName) {
+        return userDAO.getFriendPaginationData(paginationUserRequestDTO, partOfUsersName);
+    }
+
+    @Override
+    public PaginatedUsersListFromDB getNotFriendPaginationData(PaginationUserRequestDTO paginationUserRequestDTO) {
+        return userDAO.getNotFriendPaginationData(paginationUserRequestDTO);
+    }
+
+    @Override
+    public PaginatedUsersListFromDB getNotFriendPaginationData(PaginationUserRequestDTO paginationUserRequestDTO, String partOfUsersName) {
+        return userDAO.getNotFriendPaginationData(paginationUserRequestDTO, partOfUsersName);
+    }
+
+    @Override
+    public PaginatedUsersListFromDB getPaginationData(PaginationUserRequestDTO paginationUserRequestDTO) {
+        return userDAO.getPaginationData(paginationUserRequestDTO);
+    }
+
+    @Override
+    public PaginatedUsersListFromDB getPaginationData(PaginationUserRequestDTO paginationUserRequestDTO, String partOfUsersName) {
+        return userDAO.getPaginationData(paginationUserRequestDTO, partOfUsersName);
     }
 
     @Override
@@ -43,31 +76,36 @@ public class UserServiceImplementation implements UserListService, UserFollowSer
 
     @Override
     public int getDefaultPageSize() {
+        return userDAO.getDefaultPageSize();
+    }
+
+    @Override
+    public int getPageSize() {
         return userDAO.getPageSize();
     }
 
     @Override
-    public Set<User> getUsersByIds(Set<Integer> ids) {
+    public Set<UserModel> getUsersByIds(Set<Integer> ids) {
         return userDAO.getUsersByIds(ids);
     }
 
     @Override
-    public User getByID(int id) {
+    public UserModel getByID(int id) {
         return userDAO.getByID(id);
     }
 
     @Override
-    public User getByUsername(String username) {
+    public UserModel getByUsername(String username) {
         return userDAO.getByUsername(username);
     }
 
     @Override
-    public void save(User newUser, String username, String password, UserRoles role) {
+    public void save(UserModel newUser, String username, String password, UserRoles role) {
         userDAO.save(newUser, username, password, role);
     }
 
     @Override
-    public void update(int id, User updatedUser) {
+    public void update(int id, UserModel updatedUser) {
         userDAO.update(id, updatedUser);
     }
 
@@ -78,12 +116,12 @@ public class UserServiceImplementation implements UserListService, UserFollowSer
 
 
     @Override
-    public Set<Integer> getIdsFollowedUsers(User user) {
+    public Set<Integer> getIdsFollowedUsers(UserModel user) {
         return userDAO.getIdsFollowedUsers(user);
     }
 
     @Override
-    public Set<Integer> getIdsUsersWhoFollowedMe(User user) {
+    public Set<Integer> getIdsUsersWhoFollowedMe(UserModel user) {
         return userDAO.getIdsUsersWhoFollowedMe(user);
     }
 
@@ -109,7 +147,7 @@ public class UserServiceImplementation implements UserListService, UserFollowSer
     }
 
     @Override
-    public User getCurrentLoginUser() {
+    public UserModel getCurrentLoginUser() {
         return userDAO.getCurrentLoginUser();
     }
 
@@ -135,7 +173,7 @@ public class UserServiceImplementation implements UserListService, UserFollowSer
 
     @Override
     public void updateStatus(int userId, String newStatus) {
-        User user = getByID(userId);
+        UserModel user = getByID(userId);
         user.setStatus(newStatus);
 
         userDAO.update(user.getUserID(), user);

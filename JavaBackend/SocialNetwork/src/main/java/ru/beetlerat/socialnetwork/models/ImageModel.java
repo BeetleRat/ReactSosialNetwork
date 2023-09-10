@@ -22,7 +22,7 @@ public class ImageModel {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    private UserModel user;
 
     public ImageModel() {
 
@@ -51,7 +51,7 @@ public class ImageModel {
         return url;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
@@ -71,7 +71,7 @@ public class ImageModel {
         this.url = url;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
         user.setProfilePhoto(this);
     }

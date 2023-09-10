@@ -9,13 +9,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.beetlerat.socialnetwork.dto.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.user.full.FullUserInfoDTO;
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.security.types.UserRoles;
 import ru.beetlerat.socialnetwork.services.users.UserFollowService;
 import ru.beetlerat.socialnetwork.services.users.UserListService;
 import ru.beetlerat.socialnetwork.services.users.UsersCRUDService;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.UserAlreadyCreatedException;
-import ru.beetlerat.socialnetwork.utill.exceptions.user.UserErrorResponse;
 import ru.beetlerat.socialnetwork.utill.exceptions.user.UserNotFoundException;
 import ru.beetlerat.socialnetwork.utill.exceptions.NotValidException;
 
@@ -51,7 +50,7 @@ public class SecurityUsersController {
     public String ShowList(Model model) {
         model.addAttribute("Users", userListService.getList());
         model.addAttribute("OpenPasswords",
-                userListService.getList().stream().map((user) -> {
+                userListService.getList().getPageUserList().stream().map((user) -> {
                     return passwordEncoder.matches("rootroot", user.getSecuritySettings().getPassword());
                 }).toList()
         );
@@ -72,9 +71,9 @@ public class SecurityUsersController {
     }
 
     // Конвертация из DTO в модели
-    private User convertToUser(FullUserInfoDTO fullUserInfoDTO) {
+    private UserModel convertToUser(FullUserInfoDTO fullUserInfoDTO) {
         // Автоматически конвертируем поля совпадающие по названию геттеров/сеттеров
-        User user = modelMapper.map(fullUserInfoDTO, User.class);
+        UserModel user = modelMapper.map(fullUserInfoDTO, UserModel.class);
 
         // Вручную конвертируем дополнительные поля
         if (fullUserInfoDTO.getFollowedUsersIds() != null) {
@@ -97,7 +96,7 @@ public class SecurityUsersController {
     }
 
     // Конвертация из модели в DTO
-    private FullUserInfoDTO convertToUserDTO(User user) {
+    private FullUserInfoDTO convertToUserDTO(UserModel user) {
         // Автоматически конвертируем поля совпадающие по названию геттеров/сеттеров
         FullUserInfoDTO fullUserInfoDTO = modelMapper.map(user, FullUserInfoDTO.class);
 
@@ -113,22 +112,22 @@ public class SecurityUsersController {
 
     // Обработчики исключений
     @ExceptionHandler
-    private ResponseEntity<UserErrorResponse> handleNotFoundException(UserNotFoundException exception) {
-        UserErrorResponse personErrorResponse = new UserErrorResponse(ResponseToFront.Code.NOT_FOUND.getCode(), "Person with this id was not found!");
+    private ResponseEntity<ResponseToFront> handleNotFoundException(UserNotFoundException exception) {
+        ResponseToFront personErrorResponse = ResponseToFront.FromMessageAndResultCode("Person with this id was not found!", ResponseToFront.Code.NOT_FOUND.getCode());
 
         return ResponseEntity.ok(personErrorResponse);
     }
 
     @ExceptionHandler
-    private ResponseEntity<UserErrorResponse> handleNotValidException(NotValidException exception) {
-        UserErrorResponse personErrorResponse = new UserErrorResponse(ResponseToFront.Code.NOT_VALID.getCode(), "Person has not valid fields:" + exception.getMessage());
+    private ResponseEntity<ResponseToFront> handleNotValidException(NotValidException exception) {
+        ResponseToFront personErrorResponse = ResponseToFront.FromMessageAndResultCode("Person has not valid fields:" + exception.getMessage(), ResponseToFront.Code.NOT_VALID.getCode());
 
         return ResponseEntity.ok(personErrorResponse);
     }
 
     @ExceptionHandler
-    private ResponseEntity<UserErrorResponse> handleAlreadyCreatedException(UserAlreadyCreatedException exception) {
-        UserErrorResponse personErrorResponse = new UserErrorResponse(ResponseToFront.Code.EXCEPTION.getCode(), "Person is already exist:" + exception.getMessage());
+    private ResponseEntity<ResponseToFront> handleAlreadyCreatedException(UserAlreadyCreatedException exception) {
+        ResponseToFront personErrorResponse = ResponseToFront.FromMessageAndResultCode("Person is already exist:" + exception.getMessage(), ResponseToFront.Code.EXCEPTION.getCode());
 
         return ResponseEntity.ok(personErrorResponse);
     }

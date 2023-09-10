@@ -1,14 +1,14 @@
 package ru.beetlerat.socialnetwork.services.users;
 
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.UserModel;
 
 import java.util.Set;
 
 public interface UserFollowService {
 
-    Set<Integer> getIdsFollowedUsers(User user);
+    Set<Integer> getIdsFollowedUsers(UserModel user);
 
-    Set<Integer> getIdsUsersWhoFollowedMe(User user);
+    Set<Integer> getIdsUsersWhoFollowedMe(UserModel user);
 
     void subscribeLoginUserToUserByID(int userID);
 

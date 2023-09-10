@@ -10,8 +10,8 @@ import ru.beetlerat.socialnetwork.dto.user.authorized.AuthorizationRefreshTokenD
 import ru.beetlerat.socialnetwork.dto.user.authorized.AuthorizationUserInfoDTO;
 import ru.beetlerat.socialnetwork.dto.user.authorized.JWTokenDTOResponse;
 import ru.beetlerat.socialnetwork.dto.ResponseToFront;
-import ru.beetlerat.socialnetwork.models.RefreshToken;
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.RefreshTokenModel;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.security.JWT.JwtUtils;
 import ru.beetlerat.socialnetwork.security.types.SecurityUserDetails;
 import ru.beetlerat.socialnetwork.services.refreshtoken.RefreshTokenService;
@@ -62,7 +62,7 @@ public class TokenController {
             );
         }
 
-        User user = findUserService.getByUsername(authRequest.getUsername());
+        UserModel user = findUserService.getByUsername(authRequest.getUsername());
         SecurityUserDetails securityUserDetails = new SecurityUserDetails(user.getSecuritySettings());
 
         String jwtAccess = jwtUtils.generateAccessToken(securityUserDetails);
@@ -81,7 +81,7 @@ public class TokenController {
 
         String requestRefreshToken = request.getRefreshToken();
 
-        RefreshToken token = refreshTokenService.findToken(requestRefreshToken).orElseThrow(TokenNotFoundException::new);
+        RefreshTokenModel token = refreshTokenService.findToken(requestRefreshToken).orElseThrow(TokenNotFoundException::new);
 
         SecurityUserDetails securityUserDetails = new SecurityUserDetails(token.getUser().getSecuritySettings());
 
@@ -91,7 +91,7 @@ public class TokenController {
         return ResponseEntity.ok(JWTokenDTOResponse.FromAccessAndRefreshToken(jwtAccess, jwtRefresh));
     }
 
-    private String getJWTRefresh(RefreshToken token, SecurityUserDetails securityUserDetails) {
+    private String getJWTRefresh(RefreshTokenModel token, SecurityUserDetails securityUserDetails) {
         String jwtRefresh;
         try {
             jwtRefresh = refreshTokenService.verifyExpiration(token).getToken();

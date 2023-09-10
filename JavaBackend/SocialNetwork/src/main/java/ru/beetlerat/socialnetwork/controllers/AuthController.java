@@ -1,7 +1,6 @@
 package ru.beetlerat.socialnetwork.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -9,7 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.beetlerat.socialnetwork.dto.ResponseToFront;
 import ru.beetlerat.socialnetwork.dto.user.authorized.*;
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.security.JWT.JwtUtils;
 import ru.beetlerat.socialnetwork.security.types.SecurityUserDetails;
 import ru.beetlerat.socialnetwork.services.users.AuthUserService;
@@ -53,7 +52,7 @@ public class AuthController {
             return ResponseEntity.ok(ResponseToFront.BadCredentials());
         }
 
-        User user = findUserService.getByUsername(authRequest.getUsername());
+        UserModel user = findUserService.getByUsername(authRequest.getUsername());
 
         SecurityUserDetails securityUserDetails = new SecurityUserDetails(user.getSecuritySettings());
 
@@ -70,9 +69,9 @@ public class AuthController {
     }
 
     @DeleteMapping("/login")
-    public ResponseEntity logoutUser() {
+    public ResponseEntity<ResponseToFront> logoutUser() {
         authService.logout();
-        return new ResponseEntity(HttpStatus.OK);
+        return ResponseEntity.ok(ResponseToFront.Ok());
     }
 
     @ExceptionHandler

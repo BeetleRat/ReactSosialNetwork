@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.beetlerat.socialnetwork.dao.UserDAO;
 import ru.beetlerat.socialnetwork.models.ImageModel;
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.repositories.ImageRepository;
 import ru.beetlerat.socialnetwork.utill.exceptions.files.CanNotReadFileException;
 import ru.beetlerat.socialnetwork.utill.exceptions.files.FileNotFoundInDatabaseException;
@@ -76,7 +76,7 @@ public class FileServiceImplementation implements ImageService {
     }
 
     @Override
-    public String savePhotoAndGetURL(User user, MultipartFile photoFile) {
+    public String savePhotoAndGetURL(UserModel user, MultipartFile photoFile) {
         if (!isInputDataCorrect(user, photoFile)) {
             return "";
         }
@@ -98,7 +98,7 @@ public class FileServiceImplementation implements ImageService {
     }
 
     private boolean isInputDataCorrect(
-            User user, MultipartFile photoFile) {
+            UserModel user, MultipartFile photoFile) {
         if (photoFile == null || photoFile.isEmpty() || user == null) {
             return false;
         }
@@ -138,7 +138,7 @@ public class FileServiceImplementation implements ImageService {
         return fileExtension;
     }
 
-    private ImageModel getImageModelFromUser(User user) {
+    private ImageModel getImageModelFromUser(UserModel user) {
         ImageModel photo = user.getProfilePhoto();
         if (photo == null) {
             photo = new ImageModel();
@@ -177,12 +177,12 @@ public class FileServiceImplementation implements ImageService {
         return serverBaseURL + "/img/" + image.getName();
     }
 
-    private void setURLToUserAndImage(String imgURL, User user) {
+    private void setURLToUserAndImage(String imgURL, UserModel user) {
         user.setImgURL(imgURL);
         image.setUrl(imgURL);
     }
 
-    private void updateDatabase(User user) {
+    private void updateDatabase(UserModel user) {
         imageRepository.save(image);
         userDAO.update(user.getUserID(), user);
         if (removeImage.exists()) {

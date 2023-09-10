@@ -1,6 +1,6 @@
 package ru.beetlerat.socialnetwork.security.models;
 
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.security.types.UserPermissions;
 import ru.beetlerat.socialnetwork.security.types.UserRoles;
 
@@ -24,7 +24,7 @@ public class SecurityUserModel {
     @Enumerated(EnumType.STRING)
     private UserRoles userRole;
     @OneToOne(mappedBy = "securitySettings", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
-    private User user;
+    private UserModel user;
 
     @OneToMany(mappedBy = "securityUserModel", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<SecurityUserPermissionModel> userPermissions;
@@ -63,7 +63,7 @@ public class SecurityUserModel {
         return false;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
@@ -116,7 +116,7 @@ public class SecurityUserModel {
         }
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
     }
 

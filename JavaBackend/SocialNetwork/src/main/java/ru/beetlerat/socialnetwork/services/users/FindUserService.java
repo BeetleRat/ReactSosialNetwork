@@ -1,6 +1,6 @@
 package ru.beetlerat.socialnetwork.services.users;
 
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.UserModel;
 
 import java.util.Set;
 
@@ -9,9 +9,9 @@ public interface FindUserService {
     // потому нам нужны методы получения списка пользователей по списку ID
     // и наоборот, получения списка id пользователей подписанных на данного
     // и на которых подписан данный пользователь
-    Set<User> getUsersByIds(Set<Integer> ids);
+    Set<UserModel> getUsersByIds(Set<Integer> ids);
 
-    User getByID(int id);
+    UserModel getByID(int id);
 
-    User getByUsername(String username);
+    UserModel getByUsername(String username);
 }

@@ -1,19 +1,19 @@
 package ru.beetlerat.socialnetwork.services.refreshtoken;
 
-import ru.beetlerat.socialnetwork.models.RefreshToken;
-import ru.beetlerat.socialnetwork.models.User;
+import ru.beetlerat.socialnetwork.models.RefreshTokenModel;
+import ru.beetlerat.socialnetwork.models.UserModel;
 import ru.beetlerat.socialnetwork.security.types.SecurityUserDetails;
 
 import java.util.Optional;
 
 public interface RefreshTokenService {
-    RefreshToken createRefreshToken(SecurityUserDetails user);
+    RefreshTokenModel createRefreshToken(SecurityUserDetails user);
 
-    Optional<RefreshToken> findToken(String token);
+    Optional<RefreshTokenModel> findToken(String token);
 
-    RefreshToken verifyExpiration(RefreshToken token);
+    RefreshTokenModel verifyExpiration(RefreshTokenModel token);
 
     void removeExpiredTokens();
 
-    void deleteByUser(User user);
+    void deleteByUser(UserModel user);
 }

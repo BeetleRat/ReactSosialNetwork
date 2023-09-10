@@ -8,6 +8,11 @@
     width: 40px;
 }
 
+.headerText {
+    color: white;
+    text-align: left;
+}
+
 .loginBlock {
     float: right;
 }

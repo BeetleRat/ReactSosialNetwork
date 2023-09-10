@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    // Версия ECMAScript
+    "module": "esnext",
+    // Модульная система
+    // Стратегия, которая будет использоваться для импорта модулей
+    "moduleResolution": "node",
+    // Подключение дополнительных функций,
+    // не поддерживаемых в версии target
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    // Разрешить хитрые импорты
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    // Разрешить импорт json файлов
+    "resolveJsonModule": true,
+    // Имена файлов при имопрте чувствительны к регистру
+    "forceConsistentCasingInFileNames": true,
+    // Не выводить информацию о компиляции TypeScript
+    "noEmit": true,
+    // Разрешить компиляцию проекта если в нем есть js файл.
+    // При включении данного флага
+    // можно не сразу переводить все файлы в ts и tsx
+    // а какие-то оставить js
+    "allowJs": true,
+    // компилятор перестает проверять типы
+    // в файлах библиотеках с расширением .d.ts,
+    // что экономит время, но может привести к редким ошибкам,
+    // связанным с типами
+    "skipLibCheck": true,
+    // Проверять соответствие всех возможных типов
+    "strict": true,
+    // Проверять наличие break в switch case
+    "noFallthroughCasesInSwitch": true,
+    // Указываем что в проекте используются jsx файлы
+    "jsx": "react-jsx",
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
+  },
+  "include": [
+    "src",
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
+}
